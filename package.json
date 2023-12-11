@@ -1,5 +1,5 @@
 {
-  "name": "podverse-external-libraries",
+  "name": "podverse-external-services",
   "version": "1.0.0",
   "description": "A collection of helpers for interacting with 3rd party external services, like AWS and Podcast Index API",
   "main": "dist/index.js",
@@ -16,13 +16,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/podverse/podverse-external-libraries.git"
+    "url": "git+https://github.com/podverse/podverse-external-services.git"
   },
   "license": "AGPLv3",
   "bugs": {
-    "url": "https://github.com/podverse/podverse-external-libraries/issues"
+    "url": "https://github.com/podverse/podverse-external-services/issues"
   },
-  "homepage": "https://github.com/podverse/podverse-external-libraries#readme",
+  "homepage": "https://github.com/podverse/podverse-external-services#readme",
   "devDependencies": {
     "@types/crypto-js": "^4.2.1",
     "@types/node": "^20.10.4",
