@@ -1,4 +1,5 @@
 import aws from 'aws-sdk'
+import { AWSService } from '.'
 
 type Constructor = {
   accessKeyId: string
@@ -6,29 +7,18 @@ type Constructor = {
   secretAccessKey: string
 }
 
-export class AWSService  {
+export class AWSS3Service extends AWSService  {
   declare accessKeyId: string
   declare region: string
   declare secretAccessKey: string
+  declare s3: aws.S3
 
   constructor ({ accessKeyId, region, secretAccessKey }: Constructor) {
+    super({ accessKeyId, region, secretAccessKey })
     this.accessKeyId = accessKeyId
     this.region = region
     this.secretAccessKey = secretAccessKey
     
-    aws.config.update({
-      region: this.region,
-      httpOptions: {
-        connectTimeout: 5000,
-        timeout: 5000
-      },
-      credentials: {
-        accessKeyId: this.accessKeyId,
-        secretAccessKey: this.secretAccessKey
-      }
-    })
+    this.s3 = new aws.S3()
   }
 }
-
-export { AWSSQSService } from './sqs'
-export { AWSS3Service } from './s3'
