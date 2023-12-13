@@ -88,8 +88,8 @@ export class GoogleFCMService extends GoogleService  {
     notificationType: 'live' | 'new-episode',
     podcastTitle: string,
     episodeTitle: string,
-    podcastImage?: string,
-    episodeImage?: string,
+    podcastImage?: string | null,
+    episodeImage?: string | null,
     episodeId?: string
   ) => {
     if (!fcmTokens || fcmTokens.length === 0) return

@@ -67,7 +67,7 @@ export class UnifiedPushService {
     notificationType: 'live' | 'new-episode',
     podcastTitle: string,
     episodeTitle: string,
-    podcastImage?: string,
+    podcastImage?: string | null,
     episodeImage?: string,
     episodeId?: string
   ) => {

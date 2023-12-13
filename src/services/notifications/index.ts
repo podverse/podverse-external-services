@@ -2,13 +2,14 @@ import { UnifiedPushService } from '..'
 import { GoogleFCMService } from '../google/fcm'
 
 export interface SendNotificationOptions {
-  episodeFullImageUrl?: string
+  episodeFullImageUrl?: string | null
+  episodeGuid?: string
   episodeId?: string
-  episodeTitle?: string
+  episodeTitle?: string | null
   podcastId: string
-  podcastFullImageUrl?: string
-  podcastShrunkImageUrl?: string
-  podcastTitle?: string
+  podcastFullImageUrl?: string | null
+  podcastShrunkImageUrl?: string | null
+  podcastTitle?: string | null
 }
 
 type Constructor = {
