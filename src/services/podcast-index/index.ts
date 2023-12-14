@@ -2,6 +2,7 @@ import axios from 'axios'
 import sha1 from 'crypto-js/sha1'
 import encHex from 'crypto-js/enc-hex'
 import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
+import { config } from '../../config'
 
 type PIValueModel = {
   type: string
@@ -106,6 +107,31 @@ export class PodcastIndexService  {
     const podcast = await this.getPodcastFromPodcastIndexById(id)
     const pvValueTagArray = convertPIValueTagToPVValueTagArray(podcast.feed.value)
     return pvValueTagArray
+  }
+
+  getValueTagEnabledPodcastIdsFromPIRecursively = async (
+    accumulatedPodcastIndexIds: number[], startAt = 1): Promise<number[]> => {
+    const url = `${config.podcastIndex.baseUrl}/podcasts/bytag?podcast-value=true&max=5000&start_at=${startAt}`
+    const response = await this.podcastIndexAPIRequest(url)
+    const { data } = response
+  
+    for (const feed of data.feeds) {
+      accumulatedPodcastIndexIds.push(feed.id)
+    }
+  
+    if (data.nextStartAt) {
+      return await this.getValueTagEnabledPodcastIdsFromPIRecursively(accumulatedPodcastIndexIds, data.nextStartAt)
+    }
+  
+    return accumulatedPodcastIndexIds
+  }
+  
+  getValueTagEnabledPodcastIdsFromPI = async () => {
+    const accumulatedPodcastIndexIds: number[] = []
+    const nextStartAt = 1
+    const podcastIndexIds = await this.getValueTagEnabledPodcastIdsFromPIRecursively(accumulatedPodcastIndexIds, nextStartAt)
+  
+    return podcastIndexIds
   }
 }
 
