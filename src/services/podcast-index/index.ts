@@ -1,6 +1,7 @@
 import axios from 'axios'
 import sha1 from 'crypto-js/sha1'
 import encHex from 'crypto-js/enc-hex'
+import createError from 'http-errors'
 import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
 import { config } from '../../config'
 
@@ -82,7 +83,7 @@ export class PodcastIndexService  {
     const pvEpisodesValueTagsByGuid: any = {}
     for (const episode of episodes) {
       if (episode?.value && episode?.guid) {
-        const pvValueTagArray = convertPIValueTagToPVValueTagArray(episode.value)
+        const pvValueTagArray = this.convertPIValueTagToPVValueTagArray(episode.value)
         if (pvValueTagArray?.length > 0) {
           pvEpisodesValueTagsByGuid[episode.guid] = pvValueTagArray
         }
@@ -105,7 +106,7 @@ export class PodcastIndexService  {
 
   getPodcastValueTagForPodcastIndexId = async (id: string) => {
     const podcast = await this.getPodcastFromPodcastIndexById(id)
-    const pvValueTagArray = convertPIValueTagToPVValueTagArray(podcast.feed.value)
+    const pvValueTagArray = this.convertPIValueTagToPVValueTagArray(podcast.feed.value)
     return pvValueTagArray
   }
 
@@ -133,26 +134,43 @@ export class PodcastIndexService  {
   
     return podcastIndexIds
   }
-}
 
-export const convertPIValueTagToPVValueTagArray = (piValueTag: PIValueTag) => {
-  return [
-    {
-      method: piValueTag.model.method,
-      suggested: piValueTag.model.suggested,
-      type: piValueTag.model.type,
-      recipients: piValueTag.destinations.map((destination: PIValueDestination) => {
-        return {
-          address: destination.address,
-          customKey: destination.customKey || '',
-          customValue: destination.customValue || '',
-          fee: destination.fee || false,
-          name: destination.name || '',
-          split: destination.split || 0,
-          type: destination.type || ''
-        }
-      }),
-      valueTimeSplits: piValueTag.valueTimeSplits
+  convertPIValueTagToPVValueTagArray = (piValueTag: PIValueTag) => {
+    return [
+      {
+        method: piValueTag.model.method,
+        suggested: piValueTag.model.suggested,
+        type: piValueTag.model.type,
+        recipients: piValueTag.destinations.map((destination: PIValueDestination) => {
+          return {
+            address: destination.address,
+            customKey: destination.customKey || '',
+            customValue: destination.customValue || '',
+            fee: destination.fee || false,
+            name: destination.name || '',
+            split: destination.split || 0,
+            type: destination.type || ''
+          }
+        }),
+        valueTimeSplits: piValueTag.valueTimeSplits
+      }
+    ] as any[]
+  }
+
+  getPodcastFromPodcastIndexByGuid = async (podcastGuid: string) => {
+    const url = `${this.baseUrl}/podcasts/byguid?guid=${podcastGuid}`
+    let podcastIndexPodcast: any = null
+    try {
+      const response = await this.podcastIndexAPIRequest(url)
+      podcastIndexPodcast = response.data
+    } catch (error) {
+      // assume a 404
     }
-  ] as any[]
+  
+    if (!podcastIndexPodcast) {
+      throw new createError.NotFound('Podcast not found in Podcast Index')
+    }
+  
+    return podcastIndexPodcast
+  }
 }
