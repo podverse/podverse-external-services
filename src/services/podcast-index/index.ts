@@ -3,7 +3,6 @@ import sha1 from 'crypto-js/sha1'
 import encHex from 'crypto-js/enc-hex'
 import createError from 'http-errors'
 import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
-import { config } from '../../config'
 
 type PIValueModel = {
   type: string
@@ -112,7 +111,7 @@ export class PodcastIndexService  {
 
   getValueTagEnabledPodcastIdsFromPIRecursively = async (
     accumulatedPodcastIndexIds: number[], startAt = 1): Promise<number[]> => {
-    const url = `${config.podcastIndex.baseUrl}/podcasts/bytag?podcast-value=true&max=5000&start_at=${startAt}`
+    const url = `${this.baseUrl}/podcasts/bytag?podcast-value=true&max=5000&start_at=${startAt}`
     const response = await this.podcastIndexAPIRequest(url)
     const { data } = response
   
