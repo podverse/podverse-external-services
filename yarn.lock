@@ -1314,7 +1314,7 @@ podcast-partytime@^4.8.0:
     ramda "^0.27.1"
     tiny-invariant "^1.2.0"
 
-podverse-shared@^4.15.2:
+podverse-shared@^4.15.3:
   version "4.15.3"
   resolved "https://registry.yarnpkg.com/podverse-shared/-/podverse-shared-4.15.3.tgz#dc336e5256f0d77ef647797327c5bb64ab5846f2"
   integrity sha512-j/iPFda5eNSh+40O8ftomK0TZG/dLO7vw6h/43MhQIuiKSIVR8iZeSFG2/UjHVdSLCqdVWUOLM0SVfXLGI5fzg==
