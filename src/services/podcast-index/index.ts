@@ -4,6 +4,8 @@ import encHex from 'crypto-js/enc-hex'
 import createError from 'http-errors'
 import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
 
+console.log('podcast index!!!')
+
 type PIValueModel = {
   type: string
   method: string
@@ -15,15 +17,15 @@ type PIValueDestination = {
   type: string
   address: string
   split: number
-  customKey?: string
-  customValue?: string
+  custom_key?: string
+  custom_value?: string
   fee?: boolean
 }
 
 type PIValueTag = {
   model: PIValueModel
   destinations: PIValueDestination[]
-  valueTimeSplits: Phase6ValueTimeSplit[]
+  value_time_splits: Phase6ValueTimeSplit[]
 }
 
 type Constructor = {
@@ -143,15 +145,15 @@ export class PodcastIndexService  {
         recipients: piValueTag.destinations.map((destination: PIValueDestination) => {
           return {
             address: destination.address,
-            customKey: destination.customKey || '',
-            customValue: destination.customValue || '',
+            customKey: destination.custom_key || '',
+            customValue: destination.custom_value || '',
             fee: destination.fee || false,
             name: destination.name || '',
             split: destination.split || 0,
             type: destination.type || ''
           }
         }),
-        valueTimeSplits: piValueTag.valueTimeSplits
+        valueTimeSplits: piValueTag.value_time_splits
       }
     ] as any[]
   }
@@ -173,3 +175,4 @@ export class PodcastIndexService  {
     return podcastIndexPodcast
   }
 }
+

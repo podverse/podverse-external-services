@@ -1,28 +1,21 @@
 {
   "name": "podverse-external-services",
-  "version": "1.0.0",
-  "description": "A collection of helpers for interacting with 3rd party external services, like AWS and Podcast Index API",
+  "version": "5.0.0",
+  "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
-    "dev:watch": "nodemon --watch 'src' --watch $(realpath node_modules/podverse-shared) -x \"npm run build\"",
+    "dev:watch": "nodemon --watch 'src' --delay 500ms -x \"npm run build\"",
     "build": "tsc",
     "lint": "eslint ./src --ext .ts",
-    "lint-fix": "eslint --fix",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "start": "ts-node ./dist/index.js"
   },
-  "files": [
-    "/dist"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/podverse/podverse-external-services.git"
-  },
+  "author": "",
   "license": "AGPLv3",
-  "bugs": {
-    "url": "https://github.com/podverse/podverse-external-services/issues"
-  },
-  "homepage": "https://github.com/podverse/podverse-external-services#readme",
   "devDependencies": {
     "@types/crypto-js": "^4.2.1",
     "@types/http-errors": "^2.0.4",
@@ -40,8 +33,7 @@
     "axios": "^1.6.2",
     "crypto-js": "^4.2.0",
     "http-errors": "1.7.3",
-    "podcast-partytime": "^4.8.0",
-    "podverse-shared": "^4.15.3",
+    "podcast-partytime": "^4.8.3",
     "web-push": "^3.6.3"
   }
 }

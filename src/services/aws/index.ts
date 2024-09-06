@@ -1,34 +1,34 @@
-import aws from 'aws-sdk'
+// import aws from 'aws-sdk'
 
-type Constructor = {
-  accessKeyId: string
-  region: string
-  secretAccessKey: string
-}
+// type Constructor = {
+//   accessKeyId: string
+//   region: string
+//   secretAccessKey: string
+// }
 
-export class AWSService  {
-  declare accessKeyId: string
-  declare region: string
-  declare secretAccessKey: string
+// export class AWSService  {
+//   declare accessKeyId: string
+//   declare region: string
+//   declare secretAccessKey: string
 
-  constructor ({ accessKeyId, region, secretAccessKey }: Constructor) {
-    this.accessKeyId = accessKeyId
-    this.region = region
-    this.secretAccessKey = secretAccessKey
+//   constructor ({ accessKeyId, region, secretAccessKey }: Constructor) {
+//     this.accessKeyId = accessKeyId
+//     this.region = region
+//     this.secretAccessKey = secretAccessKey
     
-    aws.config.update({
-      region: this.region,
-      httpOptions: {
-        connectTimeout: 5000,
-        timeout: 5000
-      },
-      credentials: {
-        accessKeyId: this.accessKeyId,
-        secretAccessKey: this.secretAccessKey
-      }
-    })
-  }
-}
+//     aws.config.update({
+//       region: this.region,
+//       httpOptions: {
+//         connectTimeout: 5000,
+//         timeout: 5000
+//       },
+//       credentials: {
+//         accessKeyId: this.accessKeyId,
+//         secretAccessKey: this.secretAccessKey
+//       }
+//     })
+//   }
+// }
 
-export { AWSSQSService } from './sqs'
-export { AWSS3Service } from './s3'
+// export { AWSSQSService } from './sqs'
+// export { AWSS3Service } from './s3'

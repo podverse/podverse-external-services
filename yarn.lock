@@ -1301,10 +1301,10 @@ podcast-partytime@4.6.0-beta.3:
     ramda "^0.27.1"
     tiny-invariant "^1.2.0"
 
-podcast-partytime@^4.8.0:
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/podcast-partytime/-/podcast-partytime-4.8.0.tgz#e8451190045c74df519b339b54c909cd076431a9"
-  integrity sha512-FTkUVEdHrUoLfbqASoferNWY7Tfm4aD2sqt4oAu4vSAgTX4vyusgQlCqJ9v50gQdxsCoCKRXKA82hdLWrkoWAA==
+podcast-partytime@^4.8.3:
+  version "4.8.3"
+  resolved "https://registry.yarnpkg.com/podcast-partytime/-/podcast-partytime-4.8.3.tgz#27730d51cdad3e259c54b2c4df6854276a4c812a"
+  integrity sha512-UZZwOf4Yf8XDWiDFP+d0/m9ONGTmr+4XJ4IpI96xkjSW3fypbBYv9SnYCS9FZ8gcbwtBnY3Q4g8ono5rxb2b0w==
   dependencies:
     dotenv "^10.0.0"
     fast-xml-parser "^3.18.0"
