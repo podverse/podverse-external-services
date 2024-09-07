@@ -4,8 +4,6 @@ import createError from 'http-errors'
 import { request } from 'podverse-helpers';
 import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
 
-console.log('podcast index!!!')
-
 type PIValueModel = {
   type: string
   method: string
@@ -79,10 +77,8 @@ export class PodcastIndexService  {
       const nextSince = response.nextSince;
   
       allData = allData.concat(updatedFeeds);
-      console.log('nextSince', nextSince);
-      console.log('currentTimeInSeconds', currentTimeInSeconds);
+
       if (nextSince && nextSince <= currentTimeInSeconds) {
-        console.log('fetching more...')
         return fetchData(nextSince, allData);
       }
   
