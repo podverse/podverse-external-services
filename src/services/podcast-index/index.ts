@@ -1,7 +1,7 @@
-import axios from 'axios'
 import sha1 from 'crypto-js/sha1'
 import encHex from 'crypto-js/enc-hex'
 import createError from 'http-errors'
+import { request } from 'podverse-helpers';
 import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
 
 console.log('podcast index!!!')
@@ -32,7 +32,6 @@ type Constructor = {
   authKey: string
   baseUrl: string
   secretKey: string
-  userAgent: string
 }
 
 /*
@@ -46,13 +45,11 @@ export class PodcastIndexService  {
   declare authKey: string
   declare baseUrl: string
   declare secretKey: string
-  declare userAgent: string
 
-  constructor ({ authKey, baseUrl, secretKey, userAgent }: Constructor) {
+  constructor ({ authKey, baseUrl, secretKey }: Constructor) {
     this.authKey = authKey
     this.baseUrl = baseUrl
     this.secretKey = secretKey
-    this.userAgent = userAgent
   }
 
   podcastIndexAPIRequest = async (url: string) => {
@@ -61,18 +58,40 @@ export class PodcastIndexService  {
       encHex
     )
 
-    return axios({
-      url,
-      method: 'GET',
+    return request<any>(url, {
       headers: {
-        'User-Agent': this.userAgent,
         'X-Auth-Key': this.authKey,
         'X-Auth-Date': apiHeaderTime,
         Authorization: hash
       }
-    })
+    });
   }
-    
+
+  getRecentlyUpdatedData = async () => {
+    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+    const sinceRange = 1800; // 30 minutes
+    const sinceTimeInSeconds = currentTimeInSeconds - sinceRange;
+  
+    const fetchData = async (since: number, allData: any[] = []): Promise<any[]> => {
+      const url = `${this.baseUrl}/recent/data?max=5000&since=${since}`;
+      const response = await this.podcastIndexAPIRequest(url);
+      const updatedFeeds = response.data.feeds;
+      const nextSince = response.nextSince;
+  
+      allData = allData.concat(updatedFeeds);
+      console.log('nextSince', nextSince);
+      console.log('currentTimeInSeconds', currentTimeInSeconds);
+      if (nextSince && nextSince <= currentTimeInSeconds) {
+        console.log('fetching more...')
+        return fetchData(nextSince, allData);
+      }
+  
+      return allData;
+    };
+  
+    return fetchData(sinceTimeInSeconds);
+  }
+
   getAllEpisodesFromPodcastIndexById = async (podcastIndexId: string) => {  
     const response = await this.getEpisodesFromPodcastIndexById(podcastIndexId)
     const allEpisodes = response?.items
@@ -95,14 +114,12 @@ export class PodcastIndexService  {
   
   getEpisodesFromPodcastIndexById = async (podcastIndexId: string) => {
     const url = `${this.baseUrl}/episodes/byfeedid?id=${podcastIndexId}&max=1000`
-    const response = await this.podcastIndexAPIRequest(url)
-    return response && response.data
+    return this.podcastIndexAPIRequest(url)
   }
 
   getPodcastFromPodcastIndexById = async (id: string) => {
     const url = `${this.baseUrl}/podcasts/byfeedid?id=${id}`
-    const response = await this.podcastIndexAPIRequest(url)
-    return response && response.data
+    return this.podcastIndexAPIRequest(url)
   }
 
   getPodcastValueTagForPodcastIndexId = async (id: string) => {
@@ -114,8 +131,7 @@ export class PodcastIndexService  {
   getValueTagEnabledPodcastIdsFromPIRecursively = async (
     accumulatedPodcastIndexIds: number[], startAt = 1): Promise<number[]> => {
     const url = `${this.baseUrl}/podcasts/bytag?podcast-value=true&max=5000&start_at=${startAt}`
-    const response = await this.podcastIndexAPIRequest(url)
-    const { data } = response
+    const data = await this.podcastIndexAPIRequest(url)
   
     for (const feed of data.feeds) {
       accumulatedPodcastIndexIds.push(feed.id)
@@ -162,8 +178,8 @@ export class PodcastIndexService  {
     const url = `${this.baseUrl}/podcasts/byguid?guid=${podcastGuid}`
     let podcastIndexPodcast: any = null
     try {
-      const response = await this.podcastIndexAPIRequest(url)
-      podcastIndexPodcast = response.data
+      const data = await this.podcastIndexAPIRequest(url)
+      podcastIndexPodcast = data
     } catch (error) {
       // assume a 404
     }

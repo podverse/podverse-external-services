@@ -8,7 +8,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "dev:watch": "nodemon --watch 'src' --delay 500ms -x \"npm run build\"",
+    "dev:watch": "nodemon --watch 'src' --watch $(realpath node_modules/podverse-helpers) --delay 500ms -x \"npm run build\"",
     "build": "tsc",
     "lint": "eslint ./src --ext .ts",
     "prepare": "npm run build",
@@ -30,10 +30,10 @@
   "dependencies": {
     "@types/aws-sdk": "^2.7.0",
     "aws-sdk": "2.814.0",
-    "axios": "^1.6.2",
     "crypto-js": "^4.2.0",
     "http-errors": "1.7.3",
     "podcast-partytime": "^4.8.3",
+    "podverse-helpers": "^5.0.1",
     "web-push": "^3.6.3"
   }
 }
