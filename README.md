@@ -2,18 +2,36 @@
 
 A collection of helpers for interacting with 3rd party external services, like AWS and Podcast Index API.
 
-## Developing Podverse modules
+## Dev Setup
 
-Podverse maintains several different modules which are imported across apps. Please read [Developing Podverse modules](https://github.com/podverse/podverse-ops/blob/master/docs/how-to-develop-podverse-modules.md) for a workflow you can use to make code changes to this module locally.
+### Environment Variables
 
-## Setup
+The environment variables for this module must be set within the app that consumes this module (ex. `podverse-api` or `podverse-workers`). See `podverse-external-services/config/index.ts` for a list of the env vars expected.
 
-```sh
-yarn
+### Local Dev Workflow
+
+Podverse uses many modules that are maintained in separate repos, and they need to be linked and running for a local dev workflow. Please read the `podverse-ops/dev/local-dev-setup.md` file to set up the required dependencies and module linking.
+
+### Running Locally
+
+Install the node_modules:
+
+```
+npm install
 ```
 
-## Development
+Then to build:
 
-```sh
-yarn dev:watch
 ```
+npm run build
+```
+
+Or if you want the app to auto-build on saved changes:
+
+```
+npm run build:watch
+```
+
+## Publishing
+
+To publish your changes to npm, increment the version number is `package.json` then run `npm publish`.
