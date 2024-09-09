@@ -1,7 +1,7 @@
 import sha1 from 'crypto-js/sha1'
 import encHex from 'crypto-js/enc-hex'
 import createError from 'http-errors'
-import { request } from 'podverse-helpers';
+import { logger, request } from 'podverse-helpers';
 import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
 
 type PIValueModel = {
@@ -66,6 +66,7 @@ export class PodcastIndexService  {
   }
 
   getRecentlyUpdatedData = async () => {
+    logger.info('getRecentlyUpdatedData beginning...')
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
     const sinceRange = 1800; // 30 minutes
     const sinceTimeInSeconds = currentTimeInSeconds - sinceRange;
