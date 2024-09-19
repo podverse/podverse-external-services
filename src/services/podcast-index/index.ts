@@ -72,6 +72,7 @@ export class PodcastIndexService  {
     const sinceTimeInSeconds = currentTimeInSeconds - sinceRange;
   
     const fetchData = async (since: number, allData: any[] = []): Promise<any[]> => {
+      logger.info(`fetchData since: ${since}, allData.length: ${allData.length}`);
       const url = `${this.baseUrl}/recent/data?max=5000&since=${since}`;
       const response = await this.podcastIndexAPIRequest(url);
       const updatedFeeds = response.data.feeds;
@@ -80,6 +81,8 @@ export class PodcastIndexService  {
       allData = allData.concat(updatedFeeds);
 
       if (nextSince && nextSince <= currentTimeInSeconds) {
+        const timeLeft = currentTimeInSeconds - nextSince;
+        logger.info(`Time remaining: ${timeLeft} seconds`);
         return fetchData(nextSince, allData);
       }
   
