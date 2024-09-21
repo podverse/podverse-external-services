@@ -92,14 +92,14 @@ export class PodcastIndexService  {
     return fetchData(sinceTimeInSeconds);
   }
 
-  getAllEpisodesFromPodcastIndexById = async (podcastIndexId: string) => {  
-    const response = await this.getEpisodesFromPodcastIndexById(podcastIndexId)
+  getAllEpisodesById = async (podcastIndexId: string) => {  
+    const response = await this.getEpisodesById(podcastIndexId)
     const allEpisodes = response?.items
     return allEpisodes
   }
   
-  getAllEpisodeValueTagsFromPodcastIndexById = async (podcastIndexId: string) => {
-    const episodes = await this.getAllEpisodesFromPodcastIndexById(podcastIndexId)
+  getAllEpisodeValueTagsById = async (podcastIndexId: string) => {
+    const episodes = await this.getAllEpisodesById(podcastIndexId)
     const pvEpisodesValueTagsByGuid: any = {}
     for (const episode of episodes) {
       if (episode?.value && episode?.guid) {
@@ -112,23 +112,23 @@ export class PodcastIndexService  {
     return pvEpisodesValueTagsByGuid
   }
   
-  getEpisodesFromPodcastIndexById = async (podcastIndexId: string) => {
+  getEpisodesById = async (podcastIndexId: string) => {
     const url = `${this.baseUrl}/episodes/byfeedid?id=${podcastIndexId}&max=1000`
     return this.podcastIndexAPIRequest(url)
   }
 
-  getPodcastFromPodcastIndexById = async (id: string) => {
+  getPodcastById = async (id: string) => {
     const url = `${this.baseUrl}/podcasts/byfeedid?id=${id}`
     return this.podcastIndexAPIRequest(url)
   }
 
   getPodcastValueTagForPodcastIndexId = async (id: string) => {
-    const podcast = await this.getPodcastFromPodcastIndexById(id)
+    const podcast = await this.getPodcastById(id)
     const pvValueTagArray = this.convertPIValueTagToPVValueTagArray(podcast.feed.value)
     return pvValueTagArray
   }
 
-  getValueTagEnabledPodcastIdsFromPIRecursively = async (
+  getValueTagEnabledPodcastIdsRecursively = async (
     accumulatedPodcastIndexIds: number[], startAt = 1): Promise<number[]> => {
     const url = `${this.baseUrl}/podcasts/bytag?podcast-value=true&max=5000&start_at=${startAt}`
     const data = await this.podcastIndexAPIRequest(url)
@@ -138,16 +138,16 @@ export class PodcastIndexService  {
     }
   
     if (data.nextStartAt) {
-      return await this.getValueTagEnabledPodcastIdsFromPIRecursively(accumulatedPodcastIndexIds, data.nextStartAt)
+      return await this.getValueTagEnabledPodcastIdsRecursively(accumulatedPodcastIndexIds, data.nextStartAt)
     }
   
     return accumulatedPodcastIndexIds
   }
   
-  getValueTagEnabledPodcastIdsFromPI = async () => {
+  getValueTagEnabledPodcastIds = async () => {
     const accumulatedPodcastIndexIds: number[] = []
     const nextStartAt = 1
-    const podcastIndexIds = await this.getValueTagEnabledPodcastIdsFromPIRecursively(accumulatedPodcastIndexIds, nextStartAt)
+    const podcastIndexIds = await this.getValueTagEnabledPodcastIdsRecursively(accumulatedPodcastIndexIds, nextStartAt)
   
     return podcastIndexIds
   }
@@ -174,7 +174,7 @@ export class PodcastIndexService  {
     ] as any[]
   }
 
-  getPodcastFromPodcastIndexByGuid = async (podcastGuid: string) => {
+  getPodcastByGuid = async (podcastGuid: string) => {
     const url = `${this.baseUrl}/podcasts/byguid?guid=${podcastGuid}`
     let podcastIndexPodcast: any = null
     try {
