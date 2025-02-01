@@ -3,6 +3,7 @@ import encHex from 'crypto-js/enc-hex'
 import createError from 'http-errors'
 import { logger, request } from 'podverse-helpers';
 import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
+import { config } from '@external-services/config'
 
 type PIValueModel = {
   type: string
@@ -68,9 +69,9 @@ export class PodcastIndexService  {
   getRecentlyUpdatedData = async () => {
     logger.info('getRecentlyUpdatedData beginning...')
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
-    const sinceRange = 1800; // 30 minutes
+    const sinceRange = config.podcastIndex.recentlyUpdatedDataInterval;
     const sinceTimeInSeconds = currentTimeInSeconds - sinceRange;
-  
+
     const fetchData = async (since: number, allData: any[] = []): Promise<any[]> => {
       logger.info(`fetchData since: ${since}, allData.length: ${allData.length}`);
       const url = `${this.baseUrl}/recent/data?max=5000&since=${since}`;
@@ -81,6 +82,10 @@ export class PodcastIndexService  {
       allData = allData.concat(updatedFeeds);
 
       if (nextSince && nextSince <= currentTimeInSeconds) {
+        if (nextSince <= since) {
+          logger.info(`nextSince (${nextSince}) is not greater than since (${since}). Exiting to avoid infinite loop.`);
+          return allData;
+        }
         const timeLeft = currentTimeInSeconds - nextSince;
         logger.info(`Time remaining: ${timeLeft} seconds`);
         return fetchData(nextSince, allData);
