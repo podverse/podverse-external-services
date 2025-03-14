@@ -1,4 +1,4 @@
-import { request } from 'podverse-helpers';
+import { logError, request } from 'podverse-helpers';
 import { config } from '@external-services/config';
 import { SendNotificationOptions } from '@external-services/services/notifications';
 
@@ -134,10 +134,10 @@ export class GoogleFCMService  {
                 }
               },
               responseType: 'json'
-            })
+            });
           }
         } catch (error) {
-          console.log('sendFCMGoogleApiNotification error', error)
+          logError('sendFCMGoogleApiNotification error', error as Error);
         }
       }
     }
