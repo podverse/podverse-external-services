@@ -1,5 +1,11 @@
 export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
+  google: {
+    firebase: {
+      projectId: process.env.GOOGLE_FIREBASE_PROJECT_ID || '',
+      patoToAuthJson: process.env.GOOGLE_FIREBASE_PATH_TO_AUTH_JSON || '',
+    }
+  },
   paypal: {
     clientId: process.env.PAYPAL_CLIENT_ID || '',
     clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',

@@ -1,169 +1,145 @@
-// import axios, { AxiosRequestConfig } from 'axios'
-// import { getFCMTokensForPodcastId } from 'podverse-orm'
-// import { SendNotificationOptions } from '../notifications'
-// import { GoogleService } from '.'
+import { request } from 'podverse-helpers';
+import { config } from '@external-services/config';
+import { SendNotificationOptions } from '@external-services/services/notifications';
 
-// const fcmGoogleApiPath = 'https://fcm.googleapis.com/fcm/send'
+const fcmGoogleApiPath = `https://fcm.googleapis.com/v1/projects/${config.google.firebase.projectId}/messages:send`;
 
-// type Constructor = {
-//   authToken: string
-//   userAgent: string
-// }
+type Constructor = {
+  authToken: string
+}
 
-// export class GoogleFCMService extends GoogleService  {
-//   declare authToken: string
-//   declare userAgent: string
+export class GoogleFCMService  {
+  declare authToken: string
 
-//   constructor ({ authToken, userAgent }: Constructor) {
-//     super({ authToken, userAgent })
-//     this.authToken = authToken
-//     this.userAgent = userAgent
-//   }
+  constructor ({ authToken }: Constructor) {
+    this.authToken = authToken
+  }
 
-//   request = (options: AxiosRequestConfig) => {
-//     return axios({
-//       ...options,
-//       headers: {
-//         ...options.headers,
-//         "User-Agent": this.userAgent
-//       }
-//     })
-//   }
-
-//   sendFcmNewEpisodeDetectedNotification = async (options: SendNotificationOptions) => {
-//     const { podcastId, podcastShrunkImageUrl, podcastFullImageUrl, episodeFullImageUrl, episodeId } = options
-//     const fcmTokens = await getFCMTokensForPodcastId(podcastId)
-//     const podcastTitle = options.podcastTitle || 'Untitled Podcast'
-//     const episodeTitle = options.episodeTitle || 'Untitled Episode'
-//     const title = podcastTitle
-//     const body = episodeTitle
+  sendFcmNewItemDetectedNotification = async (account_fcm_tokens: string[], options: SendNotificationOptions) => {
+    const { channelIdText, /* podcastShrunkImageUrl, */ channelFullImageUrl, itemFullImageUrl, itemIdText } = options
+    const channelTitle = options.channelTitle || 'Untitled'
+    const itemTitle = options.itemTitle || 'Untitled'
+    const title = channelTitle
+    const body = itemTitle
   
-//     const finalPodcastImageUrl = podcastShrunkImageUrl || podcastFullImageUrl
-//     const finalEpisodeImageUrl = episodeFullImageUrl
+    const finalPodcastImageUrl = /* podcastShrunkImageUrl || */ channelFullImageUrl
+    const finalEpisodeImageUrl = itemFullImageUrl
   
-//     return this.sendFCMGoogleApiNotification(
-//       fcmTokens,
-//       title,
-//       body,
-//       podcastId,
-//       'new-episode',
-//       podcastTitle,
-//       episodeTitle,
-//       finalPodcastImageUrl,
-//       finalEpisodeImageUrl,
-//       episodeId
-//     )
-//   }
+    return this.sendFCMGoogleApiNotification(
+      account_fcm_tokens,
+      title,
+      body,
+      channelIdText,
+      'new-item',
+      channelTitle,
+      itemTitle,
+      finalPodcastImageUrl,
+      finalEpisodeImageUrl,
+      itemIdText
+    )
+  }
   
-//   sendFcmLiveItemLiveDetectedNotification = async (options: SendNotificationOptions) => {
-//     const { podcastId, podcastShrunkImageUrl, podcastFullImageUrl, episodeFullImageUrl, episodeId } = options
-//     const fcmTokens = await getFCMTokensForPodcastId(podcastId)
-//     const podcastTitle = options.podcastTitle || 'Untitled Podcast'
-//     const episodeTitle = options.episodeTitle || 'Livestream starting'
-//     const title = `LIVE: ${podcastTitle}`
-//     const body = episodeTitle
+  sendFcmLiveItemLiveDetectedNotification = async (account_fcm_tokens: string[], options: SendNotificationOptions) => {
+    const { channelIdText, /* podcastShrunkImageUrl, */ channelFullImageUrl, itemFullImageUrl, itemIdText } = options
+    const channelTitle = options.channelTitle || 'Untitled'
+    const itemTitle = options.itemTitle || 'Livestream starting'
+    const title = `LIVE: ${channelTitle}`
+    const body = itemTitle
   
-//     const finalPodcastImageUrl = podcastShrunkImageUrl || podcastFullImageUrl
-//     const finalEpisodeImageUrl = episodeFullImageUrl
+    const finalPodcastImageUrl = /* podcastShrunkImageUrl ||*/ channelFullImageUrl
+    const finalEpisodeImageUrl = itemFullImageUrl
   
-//     return this.sendFCMGoogleApiNotification(
-//       fcmTokens,
-//       title,
-//       body,
-//       podcastId,
-//       'live',
-//       podcastTitle,
-//       episodeTitle,
-//       finalPodcastImageUrl,
-//       finalEpisodeImageUrl,
-//       episodeId
-//     )
-//   }
+    return this.sendFCMGoogleApiNotification(
+      account_fcm_tokens,
+      title,
+      body,
+      channelIdText,
+      'live',
+      channelTitle,
+      itemTitle,
+      finalPodcastImageUrl,
+      finalEpisodeImageUrl,
+      itemIdText
+    )
+  }
   
-//   sendFCMGoogleApiNotification = async (
-//     fcmTokens: string[],
-//     title: string,
-//     body: string,
-//     podcastId: string,
-//     notificationType: 'live' | 'new-episode',
-//     podcastTitle: string,
-//     episodeTitle: string,
-//     podcastImage?: string | null,
-//     episodeImage?: string | null,
-//     episodeId?: string
-//   ) => {
-//     if (!fcmTokens || fcmTokens.length === 0) return
+  sendFCMGoogleApiNotification = async (
+    fcmTokens: string[],
+    title: string,
+    body: string,
+    channelIdText: string,
+    notificationType: 'live' | 'new-item',
+    channelTitle: string,
+    itemTitle: string,
+    channelImage?: string | null,
+    itemImage?: string | null,
+    itemIdText?: string
+  ) => {
+    if (!fcmTokens || fcmTokens.length === 0) return
   
-//     const fcmTokenBatches: any[] = []
-//     const size = 1000
-//     for (let i = 0; i < fcmTokens.length; i += size) {
-//       fcmTokenBatches.push(fcmTokens.slice(i, i + size))
-//     }
+    const fcmTokenBatches: any[] = []
+    const size = 1000
+    for (let i = 0; i < fcmTokens.length; i += size) {
+      fcmTokenBatches.push(fcmTokens.slice(i, i + size))
+    }
   
-//     for (const fcmTokenBatch of fcmTokenBatches) {
-//       if (fcmTokenBatch?.length > 0) {
-//         const imageUrl = episodeImage || podcastImage
-  
-//         try {
-//           await this.request({
-//             url: fcmGoogleApiPath,
-//             method: 'POST',
-//             headers: {
-//               Authorization: `key=${this.authToken}`,
-//               'Content-Type': 'application/json'
-//             },
-//             data: {
-//               // eslint-disable-next-line @typescript-eslint/camelcase
-//               registration_ids: fcmTokenBatch || [],
-//               notification: {
-//                 body,
-//                 title,
-//                 podcastId,
-//                 episodeId,
-//                 podcastTitle: podcastTitle,
-//                 episodeTitle: episodeTitle,
-//                 notificationType,
-//                 timeSent: new Date(),
-//                 image: imageUrl
-//               },
-//               data: {
-//                 body,
-//                 title,
-//                 podcastId,
-//                 episodeId,
-//                 podcastTitle: podcastTitle,
-//                 episodeTitle: episodeTitle,
-//                 notificationType,
-//                 timeSent: new Date()
-//               },
-//               android: {
-//                 notification: {
-//                   imageUrl
-//                 }
-//               },
-//               apns: {
-//                 payload: {
-//                   aps: {
-//                     'mutable-content': 1
-//                   }
-//                 },
-//                 // eslint-disable-next-line @typescript-eslint/camelcase
-//                 fcm_options: {
-//                   image: imageUrl
-//                 }
-//               },
-//               webpush: {
-//                 headers: {
-//                   image: imageUrl
-//                 }
-//               }
-//             },
-//             responseType: 'json'
-//           })
-//         } catch (error) {
-//           console.log('sendFCMGoogleApiNotification error', error)
-//         }
-//       }
-//     }
-//   }
-// }
+    for (const fcmTokenBatch of fcmTokenBatches) {
+      if (fcmTokenBatch?.length > 0) {
+        const imageUrl = itemImage || channelImage
+    
+        try {
+          for (const token of fcmTokenBatch) {
+            await request(fcmGoogleApiPath, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${this.authToken}`,
+                'Content-Type': 'application/json'
+              },
+              data: {
+                message: {
+                  token,
+                  notification: {
+                    title,
+                    body,
+                    image: imageUrl
+                  },
+                  data: {
+                    podcastId: channelIdText,
+                    episodeId: itemIdText,
+                    podcastTitle: channelTitle,
+                    episodeTitle: itemTitle,
+                    notificationType,
+                    timeSent: new Date().toISOString()
+                  },
+                  android: {
+                    notification: {
+                      image: imageUrl
+                    }
+                  },
+                  apns: {
+                    payload: {
+                      aps: {
+                        'mutable-content': 1
+                      }
+                    },
+                    fcm_options: {
+                      image: imageUrl
+                    }
+                  },
+                  webpush: {
+                    notification: {
+                      image: imageUrl
+                    }
+                  }
+                }
+              },
+              responseType: 'json'
+            })
+          }
+        } catch (error) {
+          console.log('sendFCMGoogleApiNotification error', error)
+        }
+      }
+    }
+  }
+}

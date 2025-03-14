@@ -1,48 +1,44 @@
 // import { UnifiedPushService } from '..'
-// import { GoogleFCMService } from '../google/fcm'
+import { GoogleFCMService } from '@external-services/services/google/fcm'
 
-// export interface SendNotificationOptions {
-//   episodeFullImageUrl?: string | null
-//   episodeGuid?: string
-//   episodeId?: string
-//   episodeTitle?: string | null
-//   podcastId: string
-//   podcastFullImageUrl?: string | null
-//   podcastShrunkImageUrl?: string | null
-//   podcastTitle?: string | null
-// }
+export interface SendNotificationOptions {
+  itemFullImageUrl?: string | null
+  itemGuid?: string | null
+  itemIdText?: string
+  itemTitle?: string | null
+  channelIdText: string
+  channelFullImageUrl?: string | null
+  // podcastShrunkImageUrl?: string | null
+  channelTitle?: string | null
+}
 
-// type Constructor = {
-//   googleAuthToken: string
-//   userAgent: string
-// }
+type Constructor = {
+  googleAuthToken: string
+}
 
-// export class NotificationsService  {
-//   declare fcmAuthToken: string
-//   declare userAgent: string
-//   declare GoogleFCMService: GoogleFCMService
-//   declare UnifiedPushService: UnifiedPushService
+export class NotificationsService  {
+  declare GoogleFCMService: GoogleFCMService
+  // declare UnifiedPushService: UnifiedPushService
 
-//   constructor ({ googleAuthToken, userAgent }: Constructor) {
-//     this.GoogleFCMService = new GoogleFCMService({
-//       authToken: googleAuthToken,
-//       userAgent
-//     })
+  constructor ({ googleAuthToken }: Constructor) {
+    this.GoogleFCMService = new GoogleFCMService({
+      authToken: googleAuthToken
+    })
 
-//     this.UnifiedPushService = new UnifiedPushService()
-//   }
+    // this.UnifiedPushService = new UnifiedPushService()
+  }
 
-//   sendNewEpisodeDetectedNotification = async (options: SendNotificationOptions) => {
-//     return Promise.all([
-//       this.GoogleFCMService.sendFcmNewEpisodeDetectedNotification(options),
-//       this.UnifiedPushService.sendUpNewEpisodeDetectedNotification(options)
-//     ])
-//   }
+  sendNewItemDetectedNotifications = async (account_fcm_tokens: string[], options: SendNotificationOptions): Promise<void> => {
+    await Promise.all([
+      this.GoogleFCMService.sendFcmNewItemDetectedNotification(account_fcm_tokens, options),
+      // this.UnifiedPushService.sendUpNewEpisodeDetectedNotification(options)
+    ])
+  }
 
-//   sendLiveItemLiveDetectedNotification = async (options: SendNotificationOptions) => {
-//     return Promise.all([
-//       this.GoogleFCMService.sendFcmLiveItemLiveDetectedNotification(options),
-//       this.UnifiedPushService.sendUpLiveItemLiveDetectedNotification(options)
-//     ])
-//   }
-// }
+  sendLiveItemLiveDetectedNotifications = async (account_fcm_tokens: string[], options: SendNotificationOptions): Promise<void> => {
+    await Promise.all([
+      this.GoogleFCMService.sendFcmLiveItemLiveDetectedNotification(account_fcm_tokens, options),
+      // this.UnifiedPushService.sendUpLiveItemLiveDetectedNotification(options)
+    ])
+  }
+}
