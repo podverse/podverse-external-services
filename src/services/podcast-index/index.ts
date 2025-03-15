@@ -2,30 +2,9 @@ import sha1 from 'crypto-js/sha1'
 import encHex from 'crypto-js/enc-hex'
 import createError from 'http-errors'
 import { logger, request } from 'podverse-helpers';
-import { Phase6ValueTimeSplit } from 'podcast-partytime/dist/parser/phase/phase-6'
 import { config } from '@external-services/config'
-
-type PIValueModel = {
-  type: string
-  method: string
-  suggested: string
-}
-
-type PIValueDestination = {
-  name: string
-  type: string
-  address: string
-  split: number
-  custom_key?: string
-  custom_value?: string
-  fee?: boolean
-}
-
-type PIValueTag = {
-  model: PIValueModel
-  destinations: PIValueDestination[]
-  value_time_splits: Phase6ValueTimeSplit[]
-}
+import { PodcastByGuidResponse } from './types/podcastByGuid';
+import { PodcastsByTagResponse } from './types/podcastsByTag';
 
 type Constructor = {
   authKey: string
@@ -96,92 +75,10 @@ export class PodcastIndexService  {
   
     return fetchData(sinceTimeInSeconds);
   }
-
-  getAllEpisodesById = async (podcastIndexId: string) => {  
-    const response = await this.getEpisodesById(podcastIndexId)
-    const allEpisodes = response?.items
-    return allEpisodes
-  }
   
-  getAllEpisodeValueTagsById = async (podcastIndexId: string) => {
-    const episodes = await this.getAllEpisodesById(podcastIndexId)
-    const pvEpisodesValueTagsByGuid: any = {}
-    for (const episode of episodes) {
-      if (episode?.value && episode?.guid) {
-        const pvValueTagArray = this.convertPIValueTagToPVValueTagArray(episode.value)
-        if (pvValueTagArray?.length > 0) {
-          pvEpisodesValueTagsByGuid[episode.guid] = pvValueTagArray
-        }
-      }
-    }
-    return pvEpisodesValueTagsByGuid
-  }
-  
-  getEpisodesById = async (podcastIndexId: string) => {
-    const url = `${this.baseUrl}/episodes/byfeedid?id=${podcastIndexId}&max=1000`
-    return this.podcastIndexAPIRequest(url)
-  }
-
-  getPodcastById = async (id: string) => {
-    const url = `${this.baseUrl}/podcasts/byfeedid?id=${id}`
-    return this.podcastIndexAPIRequest(url)
-  }
-
-  getPodcastValueTagForPodcastIndexId = async (id: string) => {
-    const podcast = await this.getPodcastById(id)
-    const pvValueTagArray = this.convertPIValueTagToPVValueTagArray(podcast.feed.value)
-    return pvValueTagArray
-  }
-
-  getValueTagEnabledPodcastIdsRecursively = async (
-    accumulatedPodcastIndexIds: number[], startAt = 1): Promise<number[]> => {
-    const url = `${this.baseUrl}/podcasts/bytag?podcast-value=true&max=5000&start_at=${startAt}`
-    const data = await this.podcastIndexAPIRequest(url)
-  
-    for (const feed of data.feeds) {
-      accumulatedPodcastIndexIds.push(feed.id)
-    }
-  
-    if (data.nextStartAt) {
-      return await this.getValueTagEnabledPodcastIdsRecursively(accumulatedPodcastIndexIds, data.nextStartAt)
-    }
-  
-    return accumulatedPodcastIndexIds
-  }
-  
-  getValueTagEnabledPodcastIds = async () => {
-    const accumulatedPodcastIndexIds: number[] = []
-    const nextStartAt = 1
-    const podcastIndexIds = await this.getValueTagEnabledPodcastIdsRecursively(accumulatedPodcastIndexIds, nextStartAt)
-  
-    return podcastIndexIds
-  }
-
-  convertPIValueTagToPVValueTagArray = (piValueTag: PIValueTag) => {
-    return [
-      {
-        method: piValueTag.model.method,
-        suggested: piValueTag.model.suggested,
-        type: piValueTag.model.type,
-        recipients: piValueTag.destinations.map((destination: PIValueDestination) => {
-          return {
-            address: destination.address,
-            customKey: destination.custom_key || '',
-            customValue: destination.custom_value || '',
-            fee: destination.fee || false,
-            name: destination.name || '',
-            split: destination.split || 0,
-            type: destination.type || ''
-          }
-        }),
-        valueTimeSplits: piValueTag.value_time_splits
-      }
-    ] as any[]
-  }
-
-  getPodcastByGuid = async (podcastGuid: string) => {
+  getPodcastByGuid = async (podcastGuid: string): Promise<PodcastByGuidResponse | null> => {
     const url = `${this.baseUrl}/podcasts/byguid?guid=${podcastGuid}`
-    let podcastIndexPodcast: any = null
+    let podcastIndexPodcast: PodcastByGuidResponse | null = null
     try {
       const data = await this.podcastIndexAPIRequest(url)
       podcastIndexPodcast = data
@@ -194,6 +91,30 @@ export class PodcastIndexService  {
     }
   
     return podcastIndexPodcast
+  }
+
+  getValueTagEnabledPodcastIdsRecursively = async (
+    accumulatedPodcastIndexIds: number[], startAt = 1): Promise<number[]> => {
+    const url = `${this.baseUrl}/podcasts/bytag?podcast-valueTimeSplit=true&max=5000&start_at=${startAt}`
+    const data = await this.podcastIndexAPIRequest(url) as PodcastsByTagResponse
+  
+    for (const feed of data.feeds) {
+      accumulatedPodcastIndexIds.push(feed.id)
+    }
+  
+    if (data.nextStartAt) {
+      return await this.getValueTagEnabledPodcastIdsRecursively(accumulatedPodcastIndexIds, data.nextStartAt)
+    }
+  
+    return accumulatedPodcastIndexIds
+  }
+  
+  getValueTagEnabledPodcastIds = async (): Promise<number[]> => {
+    const accumulatedPodcastIndexIds: number[] = []
+    const nextStartAt = 1
+    const podcastIndexIds = await this.getValueTagEnabledPodcastIdsRecursively(accumulatedPodcastIndexIds, nextStartAt)
+  
+    return podcastIndexIds
   }
 }
 
