@@ -1,6 +1,9 @@
 import sha1 from 'crypto-js/sha1'
 import encHex from 'crypto-js/enc-hex'
+import csv from 'csv-parser';
+import fs from 'fs';
 import createError from 'http-errors'
+import path from 'path';
 import { logger, request } from 'podverse-helpers';
 import { config } from '@external-services/config'
 import { PodcastByGuidResponse } from './types/podcastByGuid';
@@ -30,18 +33,14 @@ export class PodcastIndexService  {
     this.secretKey = secretKey
   }
 
-  podcastIndexAPIRequest = async (url: string) => {
+  podcastIndexAPIRequest = async (url: string, config?: any) => {
     const apiHeaderTime = new Date().getTime() / 1000
     const hash = sha1(this.authKey + this.secretKey + apiHeaderTime).toString(
       encHex
     )
 
     return request<any>(url, {
-      headers: {
-        'X-Auth-Key': this.authKey,
-        'X-Auth-Date': apiHeaderTime,
-        Authorization: hash
-      }
+      ...config
     });
   }
 
@@ -116,5 +115,46 @@ export class PodcastIndexService  {
   
     return podcastIndexIds
   }
-}
 
+  downloadAndExtractCSV = async (): Promise<any[]> => {
+    const url = 'https://public.podcastindex.org/podcastindex_dead_feeds.csv';
+    const tmpDir = path.join(__dirname, 'tmp');
+    const filePath = path.join(tmpDir, 'podcastindex_dead_feeds.csv');
+
+    if (!fs.existsSync(tmpDir)) {
+      fs.mkdirSync(tmpDir);
+    }
+    
+    const data = await this.podcastIndexAPIRequest(url, { responseType: 'stream' });
+
+    const writer = fs.createWriteStream(filePath);
+    data.pipe(writer);
+
+    
+    await new Promise<void>((resolve, reject) => {
+      writer.on('finish', () => resolve());
+      writer.on('error', reject);
+    });
+
+    const results: any[] = [];
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(filePath)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', resolve)
+        .on('error', reject);
+    });
+
+    fs.unlinkSync(filePath);
+
+    const parsedResults = results.map((row: Record<string, string>) => {
+      const [id, duplicateOf] = Object.values(row).map((value) => value.trim());
+      return {
+        podcast_index_id: parseInt(id, 10),
+        duplicateOf: duplicateOf ? parseInt(duplicateOf, 10) : null
+      };
+    });
+
+    return parsedResults;
+  }
+}
