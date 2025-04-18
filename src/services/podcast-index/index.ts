@@ -40,6 +40,11 @@ export class PodcastIndexService  {
     )
 
     return request<any>(url, {
+      headers: {
+        'X-Auth-Key': this.authKey,
+        'X-Auth-Date': apiHeaderTime,
+        Authorization: hash
+      },
       ...config
     });
   }
@@ -78,6 +83,7 @@ export class PodcastIndexService  {
   getPodcastByGuid = async (podcastGuid: string): Promise<PodcastByGuidResponse | null> => {
     const url = `${this.baseUrl}/podcasts/byguid?guid=${podcastGuid}`
     let podcastIndexPodcast: PodcastByGuidResponse | null = null
+
     try {
       const data = await this.podcastIndexAPIRequest(url)
       podcastIndexPodcast = data
@@ -85,11 +91,7 @@ export class PodcastIndexService  {
       // assume a 404
     }
   
-    if (!podcastIndexPodcast) {
-      throw new createError.NotFound('Podcast not found in Podcast Index')
-    }
-  
-    return podcastIndexPodcast
+    return podcastIndexPodcast || null;
   }
 
   getValueTagEnabledPodcastIdsRecursively = async (
