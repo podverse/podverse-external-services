@@ -29,9 +29,14 @@ jobs:
         id: version
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
-          BASE_VERSION=$(echo $CURRENT_VERSION | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+)-alpha\.[0-9]+/\1/')
-          ALPHA_VERSION=$(echo $CURRENT_VERSION | sed -E 's/.*-alpha\.([0-9]+)/\1/')
-          NEXT_ALPHA_VERSION=$((ALPHA_VERSION + 1))
+          if [[ "$CURRENT_VERSION" =~ -alpha\.[0-9]+$ ]]; then
+            BASE_VERSION=$(echo $CURRENT_VERSION | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+)-alpha\.[0-9]+/\1/')
+            ALPHA_VERSION=$(echo $CURRENT_VERSION | sed -E 's/.*-alpha\.([0-9]+)/\1/')
+            NEXT_ALPHA_VERSION=$((ALPHA_VERSION + 1))
+          else
+            BASE_VERSION=$CURRENT_VERSION
+            NEXT_ALPHA_VERSION=0
+          fi
           NEXT_VERSION="${BASE_VERSION}-alpha.${NEXT_ALPHA_VERSION}"
           echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
 
