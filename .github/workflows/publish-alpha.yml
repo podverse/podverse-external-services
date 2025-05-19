@@ -66,14 +66,19 @@ jobs:
       # Update package.json with the new version
       - name: Update package.json
         run: |
+          echo $NEXT_VERSION
           npm version $NEXT_VERSION --no-git-tag-version
 
       # Build the module
       - name: Build module
-        run: npm run build
+        run: |
+          cat package.json
+          npm run build
       
       # Publish to npm
       - name: Publish to npm
-        run: npm publish --tag alpha
+        run: |
+          cat package.json
+          npm publish --tag alpha
         env:
           NODE_AUTH_TOKEN: ${{ secrets.ALPHA_NPM_TOKEN }}
