@@ -1,6 +1,6 @@
 {
   "name": "podverse-external-services",
-  "version": "5.1.0",
+  "version": "5.1.0-develop",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -37,7 +37,7 @@
     "module-alias": "^2.2.3",
     "paypal-rest-sdk": "2.0.0-rc.2",
     "podcast-partytime": "^4.8.3",
-    "podverse-helpers": "^5.1.1-alpha.1",
+    "podverse-helpers": "latest",
     "web-push": "^3.6.3"
   }
 }
