@@ -62,11 +62,8 @@ jobs:
               echo "New base version detected. Resetting alpha to: $NEXT_VERSION"
             fi
           fi
-
-      # Update package.json with the new version
-      - name: Update package.json
-        run: |
-          echo $NEXT_VERSION
+          
+          echo "Updating package.json"
           npm version $NEXT_VERSION --no-git-tag-version
 
       # Build the module
