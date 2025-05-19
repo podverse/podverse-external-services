@@ -21,6 +21,10 @@ jobs:
           node-version: '20.16.0'
           registry-url: 'https://registry.npmjs.org'
       
+      - name: Install podverse-helpers latest alpha version
+        run: |
+          npm i podverse-helpers@alpha --save
+
       # Clean install dependencies
       - name: Clean install dependencies
         run: npm clean-install
