@@ -50,8 +50,7 @@ jobs:
 
             # If current alpha is malformed or suffix missing
             if [[ -z "$CURRENT_ALPHA_NUM" ]]; then
-              echo "Invalid alpha format in existing version: $ALPHA_VERSION"
-              exit 1
+              NEXT_VERSION="$BASE_VERSION-alpha.0"
             fi
 
             if [[ "$CURRENT_BASE" == "$BASE_VERSION" ]]; then
