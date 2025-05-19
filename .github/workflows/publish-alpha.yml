@@ -34,16 +34,20 @@ jobs:
         id: version
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
-          # Extract only the major.minor.patch part
           BASE_VERSION=$(echo $CURRENT_VERSION | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*$/\1/')
-          if [[ "$CURRENT_VERSION" =~ -alpha\.[0-9]+$ ]]; then
-            ALPHA_VERSION=$(echo $CURRENT_VERSION | sed -E 's/.*-alpha\.([0-9]+)/\1/')
-            NEXT_ALPHA_VERSION=$((ALPHA_VERSION + 1))
-          else
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+
+          # Get all versions as a comma-separated string, then split and filter
+          VERSIONS=$(npm view $PACKAGE_NAME versions | tr -d "[]'," | tr ' ' '\n' | grep "^${BASE_VERSION}-alpha\.[0-9]\+$" || true)
+
+          if [[ -z "$VERSIONS" ]]; then
             NEXT_ALPHA_VERSION=0
+          else
+            LAST_ALPHA=$(echo "$VERSIONS" | sed -E 's/.*-alpha\.([0-9]+)$/\1/' | sort -n | tail -1)
+            NEXT_ALPHA_VERSION=$((LAST_ALPHA + 1))
           fi
+
           NEXT_VERSION="${BASE_VERSION}-alpha.${NEXT_ALPHA_VERSION}"
-          echo "NEXT_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
 
       # Update package.json with the new version
       - name: Update package.json
@@ -59,12 +63,3 @@ jobs:
         run: npm publish --tag alpha
         env:
           NODE_AUTH_TOKEN: ${{ secrets.ALPHA_NPM_TOKEN }}
-
-      # Commit and push the updated version
-      - name: Commit and push version bump
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add package.json package-lock.json
-          git commit -m "chore: bump version to $NEXT_VERSION"
-          git push origin v5-alpha
