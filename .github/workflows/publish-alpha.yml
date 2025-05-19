@@ -42,7 +42,7 @@ jobs:
           # If no alpha tag exists
           if [[ -z "$ALPHA_VERSION" ]]; then
             echo "No alpha version found. Starting with: $BASE_VERSION-alpha.0"
-            NEXT_ALPHA="$BASE_VERSION-alpha.0"
+            NEXT_VERSION="$BASE_VERSION-alpha.0"
           else
             # Extract the base and numeric suffix from the current alpha version
             CURRENT_BASE=$(echo "$ALPHA_VERSION" | cut -d '-' -f 1)
@@ -56,11 +56,11 @@ jobs:
 
             if [[ "$CURRENT_BASE" == "$BASE_VERSION" ]]; then
               NEXT_INDEX=$((CURRENT_ALPHA_NUM + 1))
-              NEXT_ALPHA="$BASE_VERSION-alpha.$NEXT_INDEX"
-              echo "Same base version detected. Incrementing alpha to: $NEXT_ALPHA"
+              NEXT_VERSION="$BASE_VERSION-alpha.$NEXT_INDEX"
+              echo "Same base version detected. Incrementing alpha to: $NEXT_VERSION"
             else
-              NEXT_ALPHA="$BASE_VERSION-alpha.0"
-              echo "New base version detected. Resetting alpha to: $NEXT_ALPHA"
+              NEXT_VERSION="$BASE_VERSION-alpha.0"
+              echo "New base version detected. Resetting alpha to: $NEXT_VERSION"
             fi
           fi
 
