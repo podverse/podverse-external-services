@@ -10,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
-        
-      # Set up Node.js
+      
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -24,17 +22,17 @@ jobs:
       - name: Install podverse-helpers latest alpha version
         run: |
           npm i podverse-helpers@alpha --save
-
-      # Clean install dependencies
+      
       - name: Clean install dependencies
         run: npm clean-install
-
-      # Increment alpha version
+      
       - name: Increment alpha version
         id: version
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           BASE_VERSION=$(node -p "require('./package.json').version")
+          # Strip any pre-release tag (e.g., '-develop') from BASE_VERSION
+          BASE_VERSION=$(echo "$BASE_VERSION" | sed 's/-.*//')
 
           # Try to get the current alpha version (e.g., 5.1.1-alpha.3)
           ALPHA_VERSION=$(npm dist-tag ls "$PACKAGE_NAME" 2>/dev/null | grep -w alpha | awk '{print $2}')
@@ -65,17 +63,11 @@ jobs:
           
           echo "Updating package.json"
           npm version $NEXT_VERSION --no-git-tag-version
-
-      # Build the module
-      - name: Build module
-        run: |
-          cat package.json
-          npm run build
       
-      # Publish to npm
+      - name: Build module
+        run: npm run build
+      
       - name: Publish to npm
-        run: |
-          cat package.json
-          npm publish --tag alpha
+        run: npm publish --tag alpha
         env:
           NODE_AUTH_TOKEN: ${{ secrets.ALPHA_NPM_TOKEN }}
