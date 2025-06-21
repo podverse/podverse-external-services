@@ -37,7 +37,7 @@ export class PodcastIndexService  {
     const apiHeaderTime = Math.floor(Date.now() / 1000);
     const hash = sha1(this.authKey + this.secretKey + apiHeaderTime).toString(encHex);
 
-    logger.info('[PodcastIndex] Request details', {
+    console.log('[PodcastIndex] Request details', {
       url,
       apiHeaderTime,
       authKey: this.authKey,
@@ -52,7 +52,7 @@ export class PodcastIndexService  {
     });
 
     // Log system time for drift debugging
-    logger.info('[PodcastIndex] System time (UTC)', {
+    console.log('[PodcastIndex] System time (UTC)', {
       iso: new Date().toISOString(),
       epoch: Math.floor(Date.now() / 1000)
     });
@@ -66,7 +66,7 @@ export class PodcastIndexService  {
         },
         ...config
       });
-      logger.info('[PodcastIndex] Response received', {
+      console.log('[PodcastIndex] Response received', {
         status: response?.status,
         statusText: response?.statusText,
         dataKeys: response?.data ? Object.keys(response.data) : undefined
