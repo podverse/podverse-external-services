@@ -34,19 +34,55 @@ export class PodcastIndexService  {
   }
 
   podcastIndexAPIRequest = async (url: string, config?: any) => {
-    const apiHeaderTime = new Date().getTime() / 1000
-    const hash = sha1(this.authKey + this.secretKey + apiHeaderTime).toString(
-      encHex
-    )
+    const apiHeaderTime = Math.floor(Date.now() / 1000);
+    const hash = sha1(this.authKey + this.secretKey + apiHeaderTime).toString(encHex);
 
-    return request<any>(url, {
+    logger.info('[PodcastIndex] Request details', {
+      url,
+      apiHeaderTime,
+      authKey: this.authKey,
+      baseUrl: this.baseUrl,
+      secretKeyPresent: !!this.secretKey,
       headers: {
         'X-Auth-Key': this.authKey,
         'X-Auth-Date': apiHeaderTime,
         Authorization: hash
       },
-      ...config
+      config
     });
+
+    // Log system time for drift debugging
+    logger.info('[PodcastIndex] System time (UTC)', {
+      iso: new Date().toISOString(),
+      epoch: Math.floor(Date.now() / 1000)
+    });
+
+    try {
+      const response = await request<any>(url, {
+        headers: {
+          'X-Auth-Key': this.authKey,
+          'X-Auth-Date': apiHeaderTime,
+          Authorization: hash
+        },
+        ...config
+      });
+      logger.info('[PodcastIndex] Response received', {
+        status: response?.status,
+        statusText: response?.statusText,
+        dataKeys: response?.data ? Object.keys(response.data) : undefined
+      });
+      return response;
+    } catch (error: any) {
+      logger.error('[PodcastIndex] Request failed', {
+        url,
+        errorMessage: error?.message,
+        errorStack: error?.stack,
+        errorResponse: error?.response?.data,
+        errorStatus: error?.response?.status,
+        errorHeaders: error?.response?.headers
+      });
+      throw error;
+    }
   }
 
   getRecentlyUpdatedData = async () => {
