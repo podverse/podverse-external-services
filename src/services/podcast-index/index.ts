@@ -178,7 +178,7 @@ export class PodcastIndexService  {
 
     logger.info(`[PodcastIndex] Fetching trending feeds (max: ${safeMax}, since: ${since}, lang: ${lang}, cat: ${cat})`);
     const response = await this.podcastIndexAPIRequest(url);
-    console.log('Trending response:', response);
+    
     return {
       feeds: response.feeds || [],
       nextSince: response.nextSince
