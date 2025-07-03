@@ -125,10 +125,9 @@ export class PodcastIndexService  {
 
   // Recent
 
-  recentGetData = async () => {
+  recentGetData = async (sinceRange: number) => {
     logger.info('recentGetData beginning...')
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
-    const sinceRange = config.podcastIndex.recentlyUpdatedDataInterval;
     const sinceTimeInSeconds = currentTimeInSeconds - sinceRange;
 
     const fetchData = async (since: number, allData: any[] = []): Promise<any[]> => {
