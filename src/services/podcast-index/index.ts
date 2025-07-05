@@ -102,9 +102,9 @@ export class PodcastIndexService  {
     fs.unlinkSync(filePath);
 
     const parsedResults = results.map((row: Record<string, string>) => {
-      const [id_to_remove, duplicate_id_to_keep] = Object.values(row).map((value) => value.trim());
+      const [id_to_archive, duplicate_id_to_keep] = Object.values(row).map((value) => value.trim());
       return {
-        id_to_remove: parseInt(id_to_remove, 10),
+        id_to_archive: parseInt(id_to_archive, 10),
         duplicate_id_to_keep: duplicate_id_to_keep ? parseInt(duplicate_id_to_keep, 10) : null
       };
     });
