@@ -39,13 +39,18 @@ export class PodcastIndexService  {
     const apiHeaderTime = Math.floor(Date.now() / 1000);
     const hash = sha1(this.authKey + this.secretKey + apiHeaderTime).toString(encHex);
 
+    const shouldPreventHeaders = config?.preventHeaders || false;
+    delete config?.preventHeaders;
+    
     try {
       const response = await request<any>(url, {
-        headers: {
-          'X-Auth-Key': this.authKey,
-          'X-Auth-Date': apiHeaderTime,
-          Authorization: hash
-        },
+        ...(shouldPreventHeaders ? {} : {
+          headers: {
+            'X-Auth-Key': this.authKey,
+            'X-Auth-Date': apiHeaderTime,
+            Authorization: hash
+          }
+        }),
         ...config
       });
 
@@ -74,7 +79,7 @@ export class PodcastIndexService  {
       fs.mkdirSync(tmpDir);
     }
     
-    const data = await this.podcastIndexAPIRequest(url, { responseType: 'stream' });
+    const data = await this.podcastIndexAPIRequest(url, { preventHeaders: true, responseType: 'stream' });
 
     const writer = fs.createWriteStream(filePath);
     data.pipe(writer);
@@ -97,10 +102,10 @@ export class PodcastIndexService  {
     fs.unlinkSync(filePath);
 
     const parsedResults = results.map((row: Record<string, string>) => {
-      const [id, duplicateOf] = Object.values(row).map((value) => value.trim());
+      const [id_to_remove, duplicate_id_to_keep] = Object.values(row).map((value) => value.trim());
       return {
-        podcast_index_id: parseInt(id, 10),
-        duplicateOf: duplicateOf ? parseInt(duplicateOf, 10) : null
+        id_to_remove: parseInt(id_to_remove, 10),
+        duplicate_id_to_keep: duplicate_id_to_keep ? parseInt(duplicate_id_to_keep, 10) : null
       };
     });
 
@@ -108,6 +113,16 @@ export class PodcastIndexService  {
   }
 
   // Podcast
+
+  podcastGetById = async (podcastIndexId: number): Promise<any | null> => {
+    const url = `${this.baseUrl}/podcasts/byfeedid?id=${podcastIndexId}`;
+    try {
+      const response = await this.podcastIndexAPIRequest(url);
+      return response || null;
+    } catch (error) {
+      return null;
+    }
+  }
 
   podcastGetByGuid = async (podcastGuid: string): Promise<PodcastByGuidResponse | null> => {
     const url = `${this.baseUrl}/podcasts/byguid?guid=${podcastGuid}`
