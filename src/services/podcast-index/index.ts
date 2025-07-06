@@ -70,7 +70,7 @@ export class PodcastIndexService  {
 
   // Dead Feeds
 
-  deadFeedsDownloadAndExtractCSV = async (): Promise<any[]> => {
+  deadFeedsDownloadAndExtractCSV = async (resolveHandler: (row: string[]) => void): Promise<void> => {
     const url = 'https://public.podcastindex.org/podcastindex_dead_feeds.csv';
     const tmpDir = path.join(__dirname, 'tmp');
     const filePath = path.join(tmpDir, 'podcastindex_dead_feeds.csv');
@@ -78,38 +78,45 @@ export class PodcastIndexService  {
     if (!fs.existsSync(tmpDir)) {
       fs.mkdirSync(tmpDir);
     }
-    
+
     const data = await this.podcastIndexAPIRequest(url, { preventHeaders: true, responseType: 'stream' });
 
     const writer = fs.createWriteStream(filePath);
     data.pipe(writer);
 
-    
     await new Promise<void>((resolve, reject) => {
       writer.on('finish', () => resolve());
       writer.on('error', reject);
     });
 
-    const results: any[] = [];
-    await new Promise((resolve, reject) => {
-      fs.createReadStream(filePath)
-        .pipe(csv())
-        .on('data', (data) => results.push(data))
-        .on('end', resolve)
-        .on('error', reject);
+    await new Promise<void>((resolve, reject) => {
+      const stream = fs.createReadStream(filePath)
+        .pipe(csv({ headers: false, skipLines: 0 }));
+
+      stream.on('data', async (row: string[]) => {
+        stream.pause();
+        try {
+          await resolveHandler(row);
+          stream.resume();
+        } catch (err) {
+          stream.destroy(err instanceof Error ? err : new Error(String(err)));
+        }
+      });
+      stream.on('end', () => resolve());
+      stream.on('error', reject);
+      stream.on('close', () => resolve());
     });
 
     fs.unlinkSync(filePath);
+  }
 
-    const parsedResults = results.map((row: Record<string, string>) => {
-      const [id_to_archive, duplicate_id_to_keep] = Object.values(row).map((value) => value.trim());
-      return {
-        id_to_archive: parseInt(id_to_archive, 10),
-        duplicate_id_to_keep: duplicate_id_to_keep ? parseInt(duplicate_id_to_keep, 10) : null
-      };
-    });
-
-    return parsedResults;
+  deadFeedsExtractRow = (row: string[]) => {
+    const id_to_archive = row[0];
+    const duplicate_id_to_keep = row[1] || null;
+    return {
+      id_to_archive: parseInt(id_to_archive, 10),
+      duplicate_id_to_keep: duplicate_id_to_keep ? parseInt(duplicate_id_to_keep, 10) : null
+    };
   }
 
   // Podcast
