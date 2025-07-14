@@ -2,10 +2,8 @@ import sha1 from 'crypto-js/sha1'
 import encHex from 'crypto-js/enc-hex'
 import csv from 'csv-parser';
 import fs from 'fs';
-import createError from 'http-errors'
 import path from 'path';
-import { logger, request } from 'podverse-helpers';
-import { config } from '@external-services/config'
+import { LoggerService, request } from 'podverse-helpers';
 import { PodcastByGuidResponse } from './types/podcastByGuid';
 import { PodcastsByTagResponse } from './types/podcastsByTag';
 
@@ -13,6 +11,7 @@ type Constructor = {
   authKey: string
   baseUrl: string
   secretKey: string
+  loggerService: LoggerService
 }
 
 /*
@@ -26,11 +25,13 @@ export class PodcastIndexService  {
   declare authKey: string
   declare baseUrl: string
   declare secretKey: string
+  declare loggerService: LoggerService;
 
-  constructor ({ authKey, baseUrl, secretKey }: Constructor) {
+  constructor ({ authKey, baseUrl, secretKey, loggerService }: Constructor) {
     this.authKey = authKey
     this.baseUrl = baseUrl
     this.secretKey = secretKey
+    this.loggerService = loggerService
   }
 
   // Request handler
@@ -56,7 +57,7 @@ export class PodcastIndexService  {
 
       return response;
     } catch (error: any) {
-      logger.error('[PodcastIndex] Request failed', {
+      this.loggerService.logError('[PodcastIndex] Request failed', {
         url,
         errorMessage: error?.message,
         errorStack: error?.stack,
@@ -148,12 +149,12 @@ export class PodcastIndexService  {
   // Recent
 
   recentGetData = async (sinceRange: number) => {
-    logger.info('recentGetData beginning...')
+    this.loggerService.info('recentGetData beginning...')
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
     const sinceTimeInSeconds = currentTimeInSeconds - sinceRange;
 
     const fetchData = async (since: number, allData: any[] = []): Promise<any[]> => {
-      logger.info(`fetchData since: ${since}, allData.length: ${allData.length}`);
+      this.loggerService.info(`fetchData since: ${since}, allData.length: ${allData.length}`);
       const url = `${this.baseUrl}/recent/data?max=5000&since=${since}`;
       const response = await this.podcastIndexAPIRequest(url);
       const updatedFeeds = response.data.feeds;
@@ -163,11 +164,11 @@ export class PodcastIndexService  {
 
       if (nextSince && nextSince <= currentTimeInSeconds) {
         if (nextSince <= since) {
-          logger.info(`nextSince (${nextSince}) is not greater than since (${since}). Exiting to avoid infinite loop.`);
+          this.loggerService.info(`nextSince (${nextSince}) is not greater than since (${since}). Exiting to avoid infinite loop.`);
           return allData;
         }
         const timeLeft = currentTimeInSeconds - nextSince;
-        logger.info(`Time remaining: ${timeLeft} seconds`);
+        this.loggerService.info(`Time remaining: ${timeLeft} seconds`);
         return fetchData(nextSince, allData);
       }
   
@@ -197,7 +198,7 @@ export class PodcastIndexService  {
       url += `&cat=${encodeURIComponent(cat)}`;
     }
 
-    logger.info(`[PodcastIndex] Fetching trending feeds (max: ${safeMax}, since: ${since}, lang: ${lang}, cat: ${cat})`);
+    this.loggerService.info(`[PodcastIndex] Fetching trending feeds (max: ${safeMax}, since: ${since}, lang: ${lang}, cat: ${cat})`);
     const response = await this.podcastIndexAPIRequest(url);
     
     return {

@@ -1,19 +1,30 @@
-import { config } from '@external-services/config';
 const paypalRestSdk = require('paypal-rest-sdk');
 const payments = paypalRestSdk.v1.payments;
 
+export interface PayPalServiceParams {
+  clientId: string;
+  clientSecret: string;
+  nodeEnv?: string; // 'production' or other
+}
+
 export class PayPalService {
   private client: any;
+  private clientId: string;
+  private clientSecret: string;
+  private nodeEnv: string;
 
-  constructor() {
+  constructor({ clientId, clientSecret, nodeEnv = 'development' }: PayPalServiceParams) {
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
+    this.nodeEnv = nodeEnv;
     this.client = new paypalRestSdk.core.PayPalHttpClient(this.getEnvironment());
   }
 
   private getEnvironment() {
-    if (config.nodeEnv === 'production') {
-      return new paypalRestSdk.core.LiveEnvironment(config.paypal.clientId, config.paypal.clientSecret);
+    if (this.nodeEnv === 'production') {
+      return new paypalRestSdk.core.LiveEnvironment(this.clientId, this.clientSecret);
     } else {
-      return new paypalRestSdk.core.SandboxEnvironment(config.paypal.clientId, config.paypal.clientSecret);
+      return new paypalRestSdk.core.SandboxEnvironment(this.clientId, this.clientSecret);
     }
   }
 

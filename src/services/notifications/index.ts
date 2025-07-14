@@ -1,5 +1,5 @@
-// import { UnifiedPushService } from '..'
 import { GoogleFCMService } from '@external-services/services/google/fcm'
+import { LoggerService } from 'podverse-helpers';
 
 export interface SendNotificationOptions {
   itemFullImageUrl?: string | null
@@ -14,15 +14,19 @@ export interface SendNotificationOptions {
 
 type Constructor = {
   googleAuthToken: string
+  firebaseProjectId: string
+  loggerService: LoggerService
 }
 
 export class NotificationsService  {
   declare GoogleFCMService: GoogleFCMService
   // declare UnifiedPushService: UnifiedPushService
 
-  constructor ({ googleAuthToken }: Constructor) {
+  constructor ({ googleAuthToken, firebaseProjectId, loggerService }: Constructor) {
     this.GoogleFCMService = new GoogleFCMService({
-      authToken: googleAuthToken
+      authToken: googleAuthToken,
+      firebaseProjectId,
+      loggerService
     })
 
     // this.UnifiedPushService = new UnifiedPushService()

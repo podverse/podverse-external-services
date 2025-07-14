@@ -1,30 +1,37 @@
-import { logError, request } from 'podverse-helpers';
-import { config } from '@external-services/config';
+import { LoggerService, request } from 'podverse-helpers';
 import { SendNotificationOptions } from '@external-services/services/notifications';
 
-const fcmGoogleApiPath = `https://fcm.googleapis.com/v1/projects/${config.google.firebase.projectId}/messages:send`;
+type GoogleFCMServiceParams = {
+  authToken: string;
+  firebaseProjectId: string;
+  loggerService: LoggerService;
+};
 
-type Constructor = {
-  authToken: string
-}
+export class GoogleFCMService {
+  private authToken: string;
+  private firebaseProjectId: string;
+  private loggerService: LoggerService;
 
-export class GoogleFCMService  {
-  declare authToken: string
+  constructor({ authToken, firebaseProjectId, loggerService }: GoogleFCMServiceParams) {
+    this.authToken = authToken;
+    this.firebaseProjectId = firebaseProjectId;
+    this.loggerService = loggerService;
+  }
 
-  constructor ({ authToken }: Constructor) {
-    this.authToken = authToken
+  private getFcmGoogleApiPath() {
+    return `https://fcm.googleapis.com/v1/projects/${this.firebaseProjectId}/messages:send`;
   }
 
   sendFcmNewItemDetectedNotification = async (account_fcm_tokens: string[], options: SendNotificationOptions) => {
-    const { channelIdText, /* podcastShrunkImageUrl, */ channelFullImageUrl, itemFullImageUrl, itemIdText } = options
-    const channelTitle = options.channelTitle || 'Untitled'
-    const itemTitle = options.itemTitle || 'Untitled'
-    const title = channelTitle
-    const body = itemTitle
-  
-    const finalPodcastImageUrl = /* podcastShrunkImageUrl || */ channelFullImageUrl
-    const finalEpisodeImageUrl = itemFullImageUrl
-  
+    const { channelIdText, channelFullImageUrl, itemFullImageUrl, itemIdText } = options;
+    const channelTitle = options.channelTitle || 'Untitled';
+    const itemTitle = options.itemTitle || 'Untitled';
+    const title = channelTitle;
+    const body = itemTitle;
+
+    const finalPodcastImageUrl = channelFullImageUrl;
+    const finalEpisodeImageUrl = itemFullImageUrl;
+
     return this.sendFCMGoogleApiNotification(
       account_fcm_tokens,
       title,
@@ -36,19 +43,19 @@ export class GoogleFCMService  {
       finalPodcastImageUrl,
       finalEpisodeImageUrl,
       itemIdText
-    )
-  }
-  
+    );
+  };
+
   sendFcmLiveItemLiveDetectedNotification = async (account_fcm_tokens: string[], options: SendNotificationOptions) => {
-    const { channelIdText, /* podcastShrunkImageUrl, */ channelFullImageUrl, itemFullImageUrl, itemIdText } = options
-    const channelTitle = options.channelTitle || 'Untitled'
-    const itemTitle = options.itemTitle || 'Livestream starting'
-    const title = `LIVE: ${channelTitle}`
-    const body = itemTitle
-  
-    const finalPodcastImageUrl = /* podcastShrunkImageUrl ||*/ channelFullImageUrl
-    const finalEpisodeImageUrl = itemFullImageUrl
-  
+    const { channelIdText, channelFullImageUrl, itemFullImageUrl, itemIdText } = options;
+    const channelTitle = options.channelTitle || 'Untitled';
+    const itemTitle = options.itemTitle || 'Livestream starting';
+    const title = `LIVE: ${channelTitle}`;
+    const body = itemTitle;
+
+    const finalPodcastImageUrl = channelFullImageUrl;
+    const finalEpisodeImageUrl = itemFullImageUrl;
+
     return this.sendFCMGoogleApiNotification(
       account_fcm_tokens,
       title,
@@ -60,9 +67,9 @@ export class GoogleFCMService  {
       finalPodcastImageUrl,
       finalEpisodeImageUrl,
       itemIdText
-    )
-  }
-  
+    );
+  };
+
   sendFCMGoogleApiNotification = async (
     fcmTokens: string[],
     title: string,
@@ -75,18 +82,20 @@ export class GoogleFCMService  {
     itemImage?: string | null,
     itemIdText?: string
   ) => {
-    if (!fcmTokens || fcmTokens.length === 0) return
-  
-    const fcmTokenBatches: any[] = []
-    const size = 1000
+    if (!fcmTokens || fcmTokens.length === 0) return;
+
+    const fcmTokenBatches: any[] = [];
+    const size = 1000;
     for (let i = 0; i < fcmTokens.length; i += size) {
-      fcmTokenBatches.push(fcmTokens.slice(i, i + size))
+      fcmTokenBatches.push(fcmTokens.slice(i, i + size));
     }
-  
+
+    const fcmGoogleApiPath = this.getFcmGoogleApiPath();
+
     for (const fcmTokenBatch of fcmTokenBatches) {
       if (fcmTokenBatch?.length > 0) {
-        const imageUrl = itemImage || channelImage
-    
+        const imageUrl = itemImage || channelImage;
+
         try {
           for (const token of fcmTokenBatch) {
             await request(fcmGoogleApiPath, {
@@ -137,9 +146,9 @@ export class GoogleFCMService  {
             });
           }
         } catch (error) {
-          logError('sendFCMGoogleApiNotification error', error as Error);
+          this.loggerService.logError('sendFCMGoogleApiNotification error', error as Error);
         }
       }
     }
-  }
+  };
 }
