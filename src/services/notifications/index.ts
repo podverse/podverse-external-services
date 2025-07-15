@@ -1,5 +1,5 @@
 import { GoogleFCMService } from '@external-services/services/google/fcm'
-import { LoggerService } from 'podverse-helpers';
+import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
 
 export interface SendNotificationOptions {
   itemFullImageUrl?: string | null

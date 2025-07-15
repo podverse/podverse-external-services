@@ -1,4 +1,5 @@
-import { LoggerService, request } from 'podverse-helpers';
+import { request } from 'podverse-helpers';
+import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
 import { SendNotificationOptions } from '@external-services/services/notifications';
 
 type GoogleFCMServiceParams = {

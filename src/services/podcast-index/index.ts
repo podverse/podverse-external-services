@@ -3,7 +3,8 @@ import encHex from 'crypto-js/enc-hex'
 import csv from 'csv-parser';
 import fs from 'fs';
 import path from 'path';
-import { LoggerService, request } from 'podverse-helpers';
+import { request } from 'podverse-helpers';
+import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
 import { PodcastByGuidResponse } from './types/podcastByGuid';
 import { PodcastsByTagResponse } from './types/podcastsByTag';
 
