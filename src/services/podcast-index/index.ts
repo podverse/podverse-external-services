@@ -56,7 +56,7 @@ export class PodcastIndexService  {
         ...config
       });
 
-      return response;
+      return response?.data;
     } catch (error: any) {
       this.loggerService.logError('[PodcastIndex] Request failed', {
         url,

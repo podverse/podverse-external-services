@@ -31,12 +31,12 @@ export class PayPalService {
   async getPaymentInfo(paymentId: string) {
     const request = new payments.PaymentGetRequest(paymentId);
     const response = await this.client.execute(request);
-    return response.result;
+    return response?.data?.result;
   }
 
   async getCaptureInfo(paymentId: string) {
     const request = new payments.CaptureGetRequest(paymentId);
     const response = await this.client.execute(request);
-    return response.result;
+    return response?.data?.result;
   }
 }
