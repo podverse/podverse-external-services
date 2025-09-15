@@ -16,25 +16,25 @@
   "author": "",
   "license": "AGPLv3",
   "devDependencies": {
-    "@types/crypto-js": "^4.2.1",
-    "@types/http-errors": "^2.0.4",
-    "@types/node": "^22.0.0",
-    "@types/web-push": "^3.3.2",
-    "@typescript-eslint/eslint-plugin": "^6.13.0",
-    "@typescript-eslint/parser": "^6.13.0",
-    "eslint": "^8.54.0",
-    "nodemon": "^3.0.2",
-    "typescript": "^5.3.2"
+    "@types/crypto-js": "^4.2.2",
+    "@types/http-errors": "^2.0.5",
+    "@types/node": "^24.4.0",
+    "@types/web-push": "^3.6.4",
+    "@typescript-eslint/eslint-plugin": "^8.44.0",
+    "@typescript-eslint/parser": "^8.44.0",
+    "eslint": "^9.35.0",
+    "nodemon": "^3.1.10",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",
     "csv-parser": "^3.2.0",
-    "firebase-admin": "^13.2.0",
-    "http-errors": "1.7.3",
+    "firebase-admin": "^13.5.0",
+    "http-errors": "2.0.0",
     "module-alias": "^2.2.3",
     "paypal-rest-sdk": "2.0.0-rc.2",
-    "podcast-partytime": "^4.8.3",
-    "podverse-helpers": "^5.0.0",
-    "web-push": "^3.6.3"
+    "podcast-partytime": "^4.9.1",
+    "podverse-helpers": "^5.1.0",
+    "web-push": "^3.6.7"
   }
 }
