@@ -9,11 +9,13 @@ type GoogleFCMServiceParams = {
 };
 
 export class GoogleFCMService {
+  private userAgent: string;
   private authToken: string;
   private firebaseProjectId: string;
   private loggerService: LoggerService;
 
-  constructor({ authToken, firebaseProjectId, loggerService }: GoogleFCMServiceParams) {
+  constructor({ userAgent, authToken, firebaseProjectId, loggerService }: GoogleFCMServiceParams) {
+    this.userAgent = userAgent;
     this.authToken = authToken;
     this.firebaseProjectId = firebaseProjectId;
     this.loggerService = loggerService;
@@ -102,6 +104,7 @@ export class GoogleFCMService {
             await request(fcmGoogleApiPath, {
               method: 'POST',
               headers: {
+                'User-Agent': this.userAgent,
                 Authorization: `Bearer ${this.authToken}`,
                 'Content-Type': 'application/json'
               },

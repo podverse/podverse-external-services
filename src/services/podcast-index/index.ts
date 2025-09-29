@@ -23,12 +23,14 @@ type Constructor = {
 */
 
 export class PodcastIndexService  {
+  declare userAgent: string
   declare authKey: string
   declare baseUrl: string
   declare secretKey: string
   declare loggerService: LoggerService;
 
-  constructor ({ authKey, baseUrl, secretKey, loggerService }: Constructor) {
+  constructor ({ userAgent, authKey, baseUrl, secretKey, loggerService }: Constructor) {
+    this.userAgent = userAgent
     this.authKey = authKey
     this.baseUrl = baseUrl
     this.secretKey = secretKey
@@ -48,6 +50,7 @@ export class PodcastIndexService  {
       const response = await request<any>(url, {
         ...(shouldPreventHeaders ? {} : {
           headers: {
+            'User-Agent': this.userAgent,
             'X-Auth-Key': this.authKey,
             'X-Auth-Date': apiHeaderTime,
             Authorization: hash
