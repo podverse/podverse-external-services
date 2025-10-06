@@ -1,21 +1,25 @@
 import { request } from 'podverse-helpers';
+import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
 import { SendNotificationOptions } from '@external-services/services/notifications';
 
 type GoogleFCMServiceParams = {
   userAgent: string;
   authToken: string;
   firebaseProjectId: string;
+  loggerService: LoggerService;
 };
 
 export class GoogleFCMService {
   private userAgent: string;
   private authToken: string;
   private firebaseProjectId: string;
+  private loggerService: LoggerService;
 
-  constructor({ userAgent, authToken, firebaseProjectId }: GoogleFCMServiceParams) {
+  constructor({ userAgent, authToken, firebaseProjectId, loggerService }: GoogleFCMServiceParams) {
     this.userAgent = userAgent;
     this.authToken = authToken;
     this.firebaseProjectId = firebaseProjectId;
+    this.loggerService = loggerService;
   }
 
   private getFcmGoogleApiPath() {
@@ -147,7 +151,7 @@ export class GoogleFCMService {
             });
           }
         } catch (error) {
-          console.error('sendFCMGoogleApiNotification error', error);
+          this.loggerService.logError('sendFCMGoogleApiNotification error', error as Error);
         }
       }
     }
