@@ -151,6 +151,13 @@ export class PodcastIndexService  {
     return podcastIndexPodcast || null;
   }
 
+  podcastsByMedium = async (medium: string, max: number = 100) => {
+    const safeMax = Math.min(max, 1000);
+    const url = `${this.baseUrl}/podcasts/bymedium?medium=${encodeURIComponent(medium)}&max=${safeMax}`;
+    const response = await this.podcastIndexAPIRequest(url);
+    return response.feeds || [];
+  }
+
   // Recent
 
   recentGetData = async (sinceRange: number) => {
