@@ -7,6 +7,7 @@ import { request } from 'podverse-helpers';
 import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
 import { PodcastByGuidResponse } from './types/podcastByGuid';
 import { PodcastsByTagResponse } from './types/podcastsByTag';
+import { SearchPodcastsResponse } from './types/searchPodcasts';
 
 type Constructor = {
   userAgent: string
@@ -188,6 +189,59 @@ export class PodcastIndexService  {
     };
   
     return fetchData(sinceTimeInSeconds);
+  }
+
+  // Search
+
+  searchPodcasts = async (
+    term: string,
+    options: {
+      max?: number
+      val?: 'any' | 'lightning' | 'hive' | 'webmonetization'
+      aponly?: boolean
+      clean?: boolean
+      similar?: boolean
+      fulltext?: boolean
+      pretty?: boolean
+    } = {}
+  ): Promise<SearchPodcastsResponse | null> => {
+    const {
+      max = 25,
+      val,
+      aponly,
+      clean,
+      similar,
+      fulltext,
+      pretty
+    } = options;
+
+    const safeMax = Math.min(Math.max(max, 1), 1000);
+    const params: string[] = [
+      `q=${encodeURIComponent(term)}`,
+      `max=${safeMax}`
+    ];
+
+    if (val) {
+      params.push(`val=${encodeURIComponent(val)}`);
+    }
+    // Boolean flags: if true, include param name without value per Podcast Index docs
+    if (aponly) params.push('aponly');
+    if (clean) params.push('clean');
+    if (similar) params.push('similar');
+    if (fulltext) params.push('fulltext');
+    if (pretty) params.push('pretty');
+
+    const query = params.join('&');
+    const url = `${this.baseUrl}/search/byterm?${query}`;
+
+    this.loggerService.info(`[PodcastIndex] Searching podcasts: term="${term}" max=${safeMax} val=${val || 'none'} flags=${[aponly&&'aponly',clean&&'clean',similar&&'similar',fulltext&&'fulltext',pretty&&'pretty'].filter(Boolean).join(',')}`);
+    try {
+      const response = await this.podcastIndexAPIRequest(url);
+      return response || [];
+    } catch (error) {
+      this.loggerService.logError('[PodcastIndex] searchPodcasts failed', { term, error });
+      return null;
+    }
   }
 
   // Trending
