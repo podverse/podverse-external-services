@@ -4,7 +4,7 @@ import csv from 'csv-parser';
 import fs from 'fs';
 import path from 'path';
 import { request } from 'podverse-helpers';
-import type { PodcastByGuidResponse, SearchPodcastsResponse,
+import type { PodcastByGuidResponse, PodcastIndexSearchPodcastsResponse,
   PodcastsByTagResponse } from 'podverse-helpers';
 import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
 
@@ -203,7 +203,7 @@ export class PodcastIndexService  {
       fulltext?: boolean
       pretty?: boolean
     } = {}
-  ): Promise<SearchPodcastsResponse | null> => {
+  ): Promise<PodcastIndexSearchPodcastsResponse | null> => {
     const {
       max = 25,
       val,
