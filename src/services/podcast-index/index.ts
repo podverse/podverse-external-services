@@ -44,19 +44,14 @@ export class PodcastIndexService  {
     const apiHeaderTime = Math.floor(Date.now() / 1000);
     const hash = sha1(this.authKey + this.secretKey + apiHeaderTime).toString(encHex);
 
-    const shouldPreventHeaders = config?.preventHeaders || false;
-    delete config?.preventHeaders;
-    
     try {
       const response = await request<any>(url, {
-        ...(shouldPreventHeaders ? {} : {
-          headers: {
-            'User-Agent': this.userAgent,
-            'X-Auth-Key': this.authKey,
-            'X-Auth-Date': apiHeaderTime,
-            Authorization: hash
-          }
-        }),
+        headers: {
+          'User-Agent': this.userAgent,
+          'X-Auth-Key': this.authKey,
+          'X-Auth-Date': apiHeaderTime,
+          Authorization: hash
+        },
         ...config
       });
 
@@ -85,7 +80,7 @@ export class PodcastIndexService  {
       fs.mkdirSync(tmpDir);
     }
 
-    const data = await this.podcastIndexAPIRequest(url, { preventHeaders: true, responseType: 'stream' });
+    const data = await this.podcastIndexAPIRequest(url, { responseType: 'stream' });
 
     const writer = fs.createWriteStream(filePath);
     data.pipe(writer);
