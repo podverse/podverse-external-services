@@ -122,8 +122,8 @@ export class PodcastIndexService  {
 
   // Podcast
 
-  podcastGetById = async (podcastIndexId: number): Promise<any | null> => {
-    const url = `${this.baseUrl}/podcasts/byfeedid?id=${podcastIndexId}`;
+  podcastGetById = async (podcast_index_id: number): Promise<any | null> => {
+    const url = `${this.baseUrl}/podcasts/byfeedid?id=${podcast_index_id}`;
     try {
       const response = await this.podcastIndexAPIRequest(url);
       return response || null;
@@ -272,9 +272,9 @@ export class PodcastIndexService  {
   valueGetByPodcastIds = async (): Promise<number[]> => {
     const accumulatedPodcastIndexIds: number[] = []
     const nextStartAt = 1
-    const podcastIndexIds = await this.valueGetByPodcastIdsRecursively(accumulatedPodcastIndexIds, nextStartAt)
+    const podcast_index_ids = await this.valueGetByPodcastIdsRecursively(accumulatedPodcastIndexIds, nextStartAt)
   
-    return podcastIndexIds
+    return podcast_index_ids
   }
 
   valueGetByPodcastIdsRecursively = async (
