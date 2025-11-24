@@ -227,8 +227,7 @@ export class PodcastIndexService  {
 
     const query = params.join('&');
     const url = `${this.baseUrl}/search/byterm?${query}`;
-
-    this.loggerService.info(`[PodcastIndex] Searching podcasts: term="${term}" max=${safeMax} val=${val || 'none'} flags=${[aponly&&'aponly',clean&&'clean',similar&&'similar',fulltext&&'fulltext',pretty&&'pretty'].filter(Boolean).join(',')}`);
+    
     try {
       const response = await this.podcastIndexAPIRequest(url);
       return response || [];
