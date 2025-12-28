@@ -33,7 +33,6 @@
     "http-errors": "2.0.0",
     "module-alias": "^2.2.3",
     "paypal-rest-sdk": "2.0.0-rc.2",
-    "podcast-partytime": "^4.9.1",
     "podverse-helpers": "^5.1.0",
     "web-push": "^3.6.7"
   }
