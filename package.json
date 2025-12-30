@@ -33,7 +33,7 @@
     "http-errors": "2.0.0",
     "module-alias": "^2.2.3",
     "paypal-rest-sdk": "2.0.0-rc.2",
-    "podverse-helpers": "^5.1.0",
+    "podverse-helpers": "^5.1.12",
     "web-push": "^3.6.7"
   }
 }
