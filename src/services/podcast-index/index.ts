@@ -4,8 +4,8 @@ import csv from 'csv-parser';
 import fs from 'fs';
 import path from 'path';
 import { request } from 'podverse-helpers';
-import type { PodcastByGuidResponse, PodcastIndexSearchPodcastsResponse,
-  PodcastsByTagResponse } from 'podverse-helpers';
+import type { PodcastBatchByFeedGuidResponse, PodcastByGuidResponse, PodcastIndexSearchPodcastsResponse,
+  PodcastsByTagResponse, EpisodeByGuidResponse, EpisodeByGuidSecondaryParams } from 'podverse-helpers';
 import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
 
 type Constructor = {
@@ -153,6 +153,15 @@ export class PodcastIndexService  {
     return response.feeds || [];
   }
 
+  podcastsBatchByFeedGuid = async (feedGuids: string[]): Promise<PodcastBatchByFeedGuidResponse> => {
+    const url = `${this.baseUrl}/podcasts/batch/byguid`;
+    const response = await this.podcastIndexAPIRequest(url, {
+      method: 'POST',
+      data: feedGuids
+    });
+    return response;
+  }
+
   // Recent
 
   recentGetData = async (sinceRange: number) => {
@@ -264,6 +273,39 @@ export class PodcastIndexService  {
       feeds: response.feeds || [],
       nextSince: response.nextSince
     };
+  }
+
+  // Episodes
+
+  episodeGetByGuid = async (guid: string, secondaryGuid: EpisodeByGuidSecondaryParams): Promise<EpisodeByGuidResponse | null> => {
+    let url = `${this.baseUrl}/episodes/byguid?guid=${guid}`;
+
+    if (secondaryGuid) {
+      const feedid = secondaryGuid.feedid;
+      const podcastguid = secondaryGuid.podcastguid;
+      const feedurl = secondaryGuid.feedurl;
+
+      if (!feedid && !podcastguid && !feedurl) {
+        this.loggerService.logError('[PodcastIndex] episodeGetByGuid called with invalid secondaryGuid', { secondaryGuid });
+        return null;
+      }
+
+      if (feedid) {
+        url += `&feedid=${feedid}`;
+      } else if (podcastguid) {
+        url += `&podcastguid=${podcastguid}`;
+      } else if (feedurl) {
+        url += `&feedurl=${feedurl}`;
+      }
+    }
+
+    try {
+      const data = await this.podcastIndexAPIRequest(url);
+      return data as EpisodeByGuidResponse;
+    } catch (error) {
+      console.log("error", error);
+      return null;
+    }
   }
 
   // Value
