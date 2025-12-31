@@ -39,6 +39,10 @@ jobs:
 
           # Update package.json peerDependencies.podverse-helpers to the found version
           node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.peerDependencies=p.peerDependencies||{};p.peerDependencies['podverse-helpers']='$ALPHA_VERSION';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');console.log('Updated package.json peerDependencies.podverse-helpers -> $ALPHA_VERSION');"
+
+          # Ensure the runner's node_modules has the matching types/runtime for the build
+          # Install the alpha into node_modules without modifying package.json
+          npm install "$PKG_NAME@$ALPHA_VERSION" --no-save
       
       - name: Clean install dependencies
         run: npm clean-install
