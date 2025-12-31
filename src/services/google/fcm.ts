@@ -1,19 +1,19 @@
 import { request } from 'podverse-helpers';
-import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
+import { ILoggerLike } from 'podverse-helpers/dist/lib/backend/logger';
 import { SendNotificationOptions } from '@external-services/services/notifications';
 
 type GoogleFCMServiceParams = {
   userAgent: string;
   authToken: string;
   firebaseProjectId: string;
-  loggerService: LoggerService;
+  loggerService: ILoggerLike;
 };
 
 export class GoogleFCMService {
   private userAgent: string;
   private authToken: string;
   private firebaseProjectId: string;
-  private loggerService: LoggerService;
+  private loggerService: ILoggerLike;
 
   constructor({ userAgent, authToken, firebaseProjectId, loggerService }: GoogleFCMServiceParams) {
     this.userAgent = userAgent;

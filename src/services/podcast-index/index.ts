@@ -6,14 +6,14 @@ import path from 'path';
 import { request } from 'podverse-helpers';
 import type { PodcastBatchByFeedGuidResponse, PodcastByGuidResponse, PodcastIndexSearchPodcastsResponse,
   PodcastsByTagResponse, EpisodeByGuidResponse, EpisodeByGuidSecondaryParams } from 'podverse-helpers';
-import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
+import { ILoggerLike } from 'podverse-helpers/dist/lib/backend/logger';
 
 type Constructor = {
   userAgent: string
   authKey: string
   baseUrl: string
   secretKey: string
-  loggerService: LoggerService
+  loggerService: ILoggerLike
 }
 
 /*
@@ -28,7 +28,7 @@ export class PodcastIndexService  {
   declare authKey: string
   declare baseUrl: string
   declare secretKey: string
-  declare loggerService: LoggerService;
+  declare loggerService: ILoggerLike;
 
   constructor ({ userAgent, authKey, baseUrl, secretKey, loggerService }: Constructor) {
     this.userAgent = userAgent

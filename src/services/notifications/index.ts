@@ -1,5 +1,5 @@
 import { GoogleFCMService } from '@external-services/services/google/fcm'
-import { LoggerService } from 'podverse-helpers/dist/lib/backend/logger';
+import { ILoggerLike } from 'podverse-helpers/dist/lib/backend/logger';
 
 export interface SendNotificationOptions {
   itemFullImageUrl?: string | null
@@ -16,7 +16,7 @@ type Constructor = {
   userAgent: string
   googleAuthToken: string
   firebaseProjectId: string
-  loggerService: LoggerService
+  loggerService: ILoggerLike
 }
 
 export class NotificationsService  {

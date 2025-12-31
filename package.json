@@ -22,10 +22,8 @@
     "http-errors": "2.0.0",
     "module-alias": "^2.2.3",
     "paypal-rest-sdk": "2.0.0-rc.2",
+    "podverse-helpers": "^5.1.12",
     "web-push": "^3.6.7"
-  },
-  "peerDependencies": {
-    "podverse-helpers": "^5.1.12"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
@@ -36,7 +34,6 @@
     "@typescript-eslint/parser": "^8.44.0",
     "eslint": "^9.35.0",
     "nodemon": "^3.1.10",
-    "typescript": "^5.9.2",
-    "podverse-helpers": "^5.1.12"
+    "typescript": "^5.9.2"
   }
 }
