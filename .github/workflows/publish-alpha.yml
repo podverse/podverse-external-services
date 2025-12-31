@@ -42,9 +42,9 @@ jobs:
 
           # Also install the alpha into node_modules without modifying package.json as a fallback
           npm install "$PKG_NAME@$ALPHA_VERSION" --no-save || true
-          
-          # update lockfile to match modified package.json
-          npm install --package-lock-only
+      
+      - name: Generate temp package-lock.json
+        run: npm install --package-lock-only
       
       - name: Clean install dependencies
         run: npm clean-install
