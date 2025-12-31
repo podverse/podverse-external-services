@@ -19,9 +19,26 @@ jobs:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
       
-      - name: Install podverse-helpers latest alpha version
+      - name: Set podverse-helpers peerDependency to latest alpha
         run: |
-          npm i podverse-helpers@alpha --save
+          PKG_NAME=podverse-helpers
+          # Try to get the dist-tag 'alpha' version first
+          ALPHA_VERSION=$(npm dist-tag ls "$PKG_NAME" 2>/dev/null | grep -w alpha | awk '{print $2}')
+
+          # Fallback to view @alpha if dist-tag listing didn't return
+          if [[ -z "$ALPHA_VERSION" ]]; then
+            ALPHA_VERSION=$(npm view "$PKG_NAME"@alpha version 2>/dev/null || true)
+          fi
+
+          if [[ -z "$ALPHA_VERSION" ]]; then
+            echo "No alpha version found for $PKG_NAME; skipping peerDependency update"
+            exit 0
+          fi
+
+          echo "Found $PKG_NAME alpha version: $ALPHA_VERSION"
+
+          # Update package.json peerDependencies.podverse-helpers to the found version
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.peerDependencies=p.peerDependencies||{};p.peerDependencies['podverse-helpers']='$ALPHA_VERSION';fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');console.log('Updated package.json peerDependencies.podverse-helpers -> $ALPHA_VERSION');"
       
       - name: Clean install dependencies
         run: npm clean-install
