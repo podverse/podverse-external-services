@@ -1,6 +1,6 @@
 {
   "name": "podverse-external-services",
-  "version": "5.1.15-develop",
+  "version": "5.1.16-develop",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
   "dependencies": {
     "crypto-js": "^4.2.0",
     "csv-parser": "^3.2.0",
-    "firebase-admin": "^13.5.0",
+    "firebase-admin": "^13.6.0",
     "http-errors": "2.0.0",
     "module-alias": "^2.2.3",
     "paypal-rest-sdk": "2.0.0-rc.2",
