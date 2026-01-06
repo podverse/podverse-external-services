@@ -15,8 +15,8 @@ export const i18nNotifications: Record<string, NotificationLocaleMap> = {
     "new-video-channel": "",
     "new-track": "",
     "new-album": "",
-    "livestream-started": "Live:",
-    "livestream-scheduled": "Live Scheduled:"
+    "livestream-started": "Live: ",
+    "livestream-scheduled": "Live Scheduled: "
   },
   "es": {
     "new": "",
