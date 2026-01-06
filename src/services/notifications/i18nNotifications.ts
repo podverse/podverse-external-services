@@ -26,8 +26,8 @@ export const i18nNotifications: Record<string, NotificationLocaleMap> = {
     "new-video-channel": "",
     "new-track": "",
     "new-album": "",
-    "livestream-started": "En vivo:",
-    "livestream-scheduled": "En vivo programado:"
+    "livestream-started": "En vivo: ",
+    "livestream-scheduled": "En vivo programado: "
   },
   "fr": {
     "new": "",
@@ -37,8 +37,8 @@ export const i18nNotifications: Record<string, NotificationLocaleMap> = {
     "new-video-channel": "",
     "new-track": "",
     "new-album": "",
-    "livestream-started": "En direct:",
-    "livestream-scheduled": "En direct programmé:"
+    "livestream-started": "En direct: ",
+    "livestream-scheduled": "En direct programmé: "
   },
   "el-GR": {
     "new": "",
@@ -48,7 +48,7 @@ export const i18nNotifications: Record<string, NotificationLocaleMap> = {
     "new-video-channel": "",
     "new-track": "",
     "new-album": "",
-    "livestream-started": "Ζωντανά:",
-    "livestream-scheduled": "Προγραμματισμένα ζωντανά:"
+    "livestream-started": "Ζωντανά: ",
+    "livestream-scheduled": "Προγραμματισμένα ζωντανά: "
   }
 }
