@@ -6,8 +6,7 @@ type NotificationPayload = {
   fcmToken: string;
   title: string;
   body?: string;
-  icon?: string;
-  image?: string;
+  image?: string;  // Item/channel artwork for large preview
   link?: string;
   data?: Record<string, string>;
 };
@@ -22,7 +21,7 @@ export async function sendFirebaseNotificationBatchWeb(tokens: string[], payload
     const data: Record<string, string> = {
       title: payload.title,
       body: payload.body || "",
-      icon: payload.icon || getWebIconImageUrl(),
+      icon: getWebIconImageUrl(),  // Always use app icon for branding
       link: payload.link ? getWebBaseUrlWithPath(payload.link) : getWebBaseUrl(),
     };
 

@@ -1,7 +1,6 @@
 import { sendFirebaseNotificationBatchWeb } from './firebaseNotificationWeb';
 import { sendFirebaseNotificationBatchAndroid } from './firebaseNotificationAndroid';
 import { sendFirebaseNotificationBatchIOS } from './firebaseNotificationIOS';
-import { sendFirebaseNotificationBatchGeneric } from './firebaseNotificationGeneric';
 
 type NotificationPlatform = 'web' | 'android' | 'ios';
 
@@ -10,7 +9,8 @@ type OrchestratorParams = {
   finalText: string;
   platform: NotificationPlatform;
   // spread of any platform-specific options
-  icon?: string;
+  body?: string;  // Secondary text (e.g., channel title)
+  image?: string;  // Item/channel artwork for large preview
   link?: string;
   channelId?: string;
   badge?: number;
@@ -25,8 +25,8 @@ export async function firebaseNotificationBatchOrchestrator(params: Orchestrator
     case 'web': {
       const payload = {
         title: finalText,
-        body: '',
-        icon: params.icon,
+        body: params.body,
+        image: params.image,
         link: params.link,
         data: params.data,
       };
@@ -36,7 +36,8 @@ export async function firebaseNotificationBatchOrchestrator(params: Orchestrator
     case 'android': {
       const payload = {
         title: finalText,
-        body: '',
+        body: params.body,
+        image: params.image,
         channelId: params.channelId,
         data: params.data,
       };
@@ -46,7 +47,8 @@ export async function firebaseNotificationBatchOrchestrator(params: Orchestrator
     case 'ios': {
       const payload = {
         title: finalText,
-        body: '',
+        body: params.body,
+        image: params.image,
         badge: params.badge,
         sound: params.sound,
         data: params.data,
