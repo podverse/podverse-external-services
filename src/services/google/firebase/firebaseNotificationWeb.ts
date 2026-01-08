@@ -1,6 +1,6 @@
-import { firebaseAdmin } from "./firebaseAdmin";
+import { chunkArray } from "podverse-helpers";
 import { getWebBaseUrl, getWebBaseUrlWithPath, getWebIconImageUrl } from "@external-services/config/web";
-import { chunkArray } from "./firebaseHelpers";
+import { firebaseAdmin } from "./firebaseAdmin";
 
 type NotificationPayload = {
   fcmToken: string;

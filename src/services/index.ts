@@ -1,3 +1,3 @@
-export * from './notifications';
-export { PayPalService } from './paypal';
-export { PodcastIndexService } from './podcast-index';
+export * from './google/firebase';
+export * from './paypal';
+export * from './podcast-index';
