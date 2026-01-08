@@ -3,7 +3,7 @@ import { sendFirebaseNotificationBatchAndroid } from './firebaseNotificationAndr
 import { sendFirebaseNotificationBatchIOS } from './firebaseNotificationIOS';
 import { sendFirebaseNotificationBatchGeneric } from './firebaseNotificationGeneric';
 
-type NotificationPlatform = 'web' | 'android' | 'ios' | 'generic';
+type NotificationPlatform = 'web' | 'android' | 'ios';
 
 type OrchestratorParams = {
   tokens: string[];
@@ -53,20 +53,6 @@ export async function firebaseNotificationBatchOrchestrator(params: Orchestrator
         data: params.data,
       };
       return await sendFirebaseNotificationBatchIOS(tokens, payload);
-    }
-
-    case 'generic': {
-      const payload = {
-        title: finalText,
-        body: '',
-        icon: params.icon,
-        link: params.link,
-        badge: params.badge,
-        channelId: params.channelId,
-        sound: params.sound,
-        data: params.data,
-      };
-      return await sendFirebaseNotificationBatchGeneric(tokens, payload);
     }
 
     default:
