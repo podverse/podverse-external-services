@@ -30,7 +30,6 @@ export async function firebaseNotificationBatchOrchestrator(params: Orchestrator
         link: params.link,
         data: params.data,
       };
-      console.log(`Sending web notification with payload: ${JSON.stringify(payload)}`);
       return await sendFirebaseNotificationBatchWeb(tokens, payload);
     }
 
