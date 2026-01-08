@@ -57,14 +57,14 @@ export class PodcastIndexService  {
 
       return response?.data;
     } catch (error: any) {
-      this.loggerService.logError('[PodcastIndex] Request failed', {
+      const errorDetails = {
         url,
         errorMessage: error?.message,
         errorStack: error?.stack,
         errorResponse: error?.response?.data,
-        errorStatus: error?.response?.status,
-        errorHeaders: error?.response?.headers
-      });
+        errorStatus: error?.response?.status
+      };
+      this.loggerService.logError(`[PodcastIndex] Request failed: ${JSON.stringify(errorDetails, null, 2)}`);
       throw error;
     }
   }
