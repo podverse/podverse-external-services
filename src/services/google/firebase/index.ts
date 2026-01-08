@@ -3,4 +3,3 @@ export { firebaseNotificationBatchOrchestrator } from './firebaseNotificationOrc
 export { sendFirebaseNotificationBatchWeb } from './firebaseNotificationWeb';
 export { sendFirebaseNotificationBatchAndroid } from './firebaseNotificationAndroid';
 export { sendFirebaseNotificationBatchIOS } from './firebaseNotificationIOS';
-export { sendFirebaseNotificationBatchGeneric } from './firebaseNotificationGeneric';
