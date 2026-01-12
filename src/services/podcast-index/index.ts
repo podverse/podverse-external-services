@@ -40,9 +40,13 @@ export class PodcastIndexService  {
 
   // Request handler
 
-  podcastIndexAPIRequest = async (url: string, config?: any) => {
+  podcastIndexAPIRequest = async (url: string, config?: any, extraParams?: { delayMs?: number }) => {
     const apiHeaderTime = Math.floor(Date.now() / 1000);
     const hash = sha1(this.authKey + this.secretKey + apiHeaderTime).toString(encHex);
+
+    if (extraParams?.delayMs && extraParams.delayMs > 0) {
+      await new Promise(resolve => setTimeout(resolve, extraParams.delayMs));
+    }
 
     try {
       const response = await request<any>(url, {
@@ -132,17 +136,17 @@ export class PodcastIndexService  {
     }
   }
 
-  podcastGetByGuid = async (podcastGuid: string): Promise<PodcastByGuidResponse | null> => {
+  podcastGetByGuid = async (podcastGuid: string, delayMs?: number): Promise<PodcastByGuidResponse | null> => {
     const url = `${this.baseUrl}/podcasts/byguid?guid=${podcastGuid}`
     let podcastIndexPodcast: PodcastByGuidResponse | null = null
 
     try {
-      const data = await this.podcastIndexAPIRequest(url)
+      const data = await this.podcastIndexAPIRequest(url, undefined, { delayMs })
       podcastIndexPodcast = data
     } catch (error) {
       // assume a 404
     }
-  
+
     return podcastIndexPodcast || null;
   }
 
