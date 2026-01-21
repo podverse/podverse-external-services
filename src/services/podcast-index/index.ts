@@ -126,7 +126,97 @@ export class PodcastIndexService  {
 
   // Podcast
 
+  // Test podcast_index_id range (only active in non-production)
+  private readonly TEST_PODCAST_INDEX_ID_MIN = 2147483640;
+
+  private getMockTestFeed(podcast_index_id: number): any | null {
+    // Only return mock data in non-production environments
+    if (process.env.NODE_ENV === 'production') {
+      return null;
+    }
+
+    // Determine which test feed based on podcast_index_id
+    let channelId: string;
+    let channelTitle: string;
+    let medium: string;
+    let feedUrl: string;
+
+    if (podcast_index_id === 2147483640) {
+      // Feed 1 - Podcast
+      channelId = 'lhtest-chan-1';
+      channelTitle = 'Lighthouse Test Podcast';
+      medium = 'podcast';
+      feedUrl = 'http://localhost:3000/test-assets/feed-1.rss';
+    } else if (podcast_index_id === 2147483641) {
+      // Feed 2 - Video
+      channelId = 'lhtest-chan-2';
+      channelTitle = 'Lighthouse Test Video';
+      medium = 'video';
+      feedUrl = 'http://localhost:3000/test-assets/feed-2.rss';
+    } else if (podcast_index_id === 2147483642) {
+      // Feed 3 - Music
+      channelId = 'lhtest-chan-3';
+      channelTitle = 'Lighthouse Test Music';
+      medium = 'music';
+      feedUrl = 'http://localhost:3000/test-assets/feed-3.rss';
+    } else {
+      return null;
+    }
+
+    // Return mock Podcast Index API response structure
+    return {
+      status: 'true',
+      query: {
+        id: podcast_index_id.toString()
+      },
+      feed: {
+        id: podcast_index_id,
+        podcastGuid: `test-guid-${podcast_index_id}`,
+        title: channelTitle,
+        url: feedUrl,
+        originalUrl: feedUrl,
+        link: feedUrl,
+        description: `Test feed for Lighthouse performance testing (${channelTitle})`,
+        author: 'Podverse',
+        ownerName: 'Podverse',
+        image: `http://localhost:3000/test-assets/chan-${podcast_index_id - 2147483639}-image.jpg`,
+        artwork: `http://localhost:3000/test-assets/chan-${podcast_index_id - 2147483639}-image.jpg`,
+        lastUpdateTime: Math.floor(Date.now() / 1000),
+        lastCrawlTime: Math.floor(Date.now() / 1000),
+        lastParseTime: Math.floor(Date.now() / 1000),
+        lastGoodHttpStatusTime: Math.floor(Date.now() / 1000),
+        lastHttpStatus: 200,
+        contentType: 'application/rss+xml',
+        itunesId: null,
+        itunesType: 'episodic',
+        generator: 'Podverse Test',
+        language: 'en',
+        explicit: false,
+        type: 0,
+        medium: medium,
+        dead: 0,
+        chash: '',
+        episodeCount: 1,
+        crawlErrors: 0,
+        parseErrors: 0,
+        categories: {},
+        locked: 0,
+        imageUrlHash: 0
+      },
+      description: `Mock Podcast Index API response for test feed ${podcast_index_id}`
+    };
+  }
+
   podcastGetById = async (podcast_index_id: number): Promise<any | null> => {
+    // Check if this is a test podcast_index_id (only in non-production)
+    if (process.env.NODE_ENV !== 'production' && podcast_index_id >= this.TEST_PODCAST_INDEX_ID_MIN) {
+      const mockFeed = this.getMockTestFeed(podcast_index_id);
+      if (mockFeed) {
+        this.loggerService.info(`[PodcastIndex] Returning mock data for test podcast_index_id: ${podcast_index_id}`);
+        return mockFeed;
+      }
+    }
+
     const url = `${this.baseUrl}/podcasts/byfeedid?id=${podcast_index_id}`;
     try {
       const response = await this.podcastIndexAPIRequest(url);
@@ -137,6 +227,17 @@ export class PodcastIndexService  {
   }
 
   podcastGetByGuid = async (podcastGuid: string, delayMs?: number): Promise<PodcastByGuidResponse | null> => {
+    // Check if this is a test feed URL (only in non-production)
+    if (process.env.NODE_ENV !== 'production') {
+      if (podcastGuid.includes('/test-assets/feed-1.rss')) {
+        return this.getMockTestFeed(2147483640) as PodcastByGuidResponse | null;
+      } else if (podcastGuid.includes('/test-assets/feed-2.rss')) {
+        return this.getMockTestFeed(2147483641) as PodcastByGuidResponse | null;
+      } else if (podcastGuid.includes('/test-assets/feed-3.rss')) {
+        return this.getMockTestFeed(2147483642) as PodcastByGuidResponse | null;
+      }
+    }
+
     const url = `${this.baseUrl}/podcasts/byguid?guid=${podcastGuid}`
     let podcastIndexPodcast: PodcastByGuidResponse | null = null
 
