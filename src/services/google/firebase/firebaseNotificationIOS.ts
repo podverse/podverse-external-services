@@ -1,6 +1,5 @@
 import { stringifyData, chunkArray } from "podverse-helpers";
-import { getWebIconImageUrl } from "@external-services/config/web";
-import { firebaseAdmin } from "./firebaseAdmin";
+import { FirebaseContext } from "../../../factory";
 
 type IOSPayload = {
   fcmToken: string;
@@ -9,17 +8,21 @@ type IOSPayload = {
   badge?: number;
   sound?: string;
   image?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 };
 
-export async function sendFirebaseNotificationBatchIOS(tokens: string[], payload: Omit<IOSPayload, 'fcmToken'>) {
-  if (!firebaseAdmin) throw new Error("Firebase Admin is not initialized");
+export async function sendFirebaseNotificationBatchIOS(
+  ctx: FirebaseContext,
+  tokens: string[],
+  payload: Omit<IOSPayload, 'fcmToken'>
+) {
+  if (!ctx.firebaseAdmin) throw new Error("Firebase Admin is not initialized");
 
   const chunks = chunkArray(tokens, 500);
-  const results: any[] = [];
+  const results: unknown[] = [];
 
   for (const chunk of chunks) {
-    const multicastMessage: any = {
+    const multicastMessage = {
       tokens: chunk,
       apns: {
         headers: { "apns-priority": "10" },
@@ -31,14 +34,15 @@ export async function sendFirebaseNotificationBatchIOS(tokens: string[], payload
             "mutable-content": 1,
           },
           ...(payload.data || {}),
-          image: payload.image || getWebIconImageUrl(),
+          image: payload.image || ctx.getWebIconImageUrl(),
         },
       },
       data: stringifyData(payload.data),
     };
 
     try {
-      const resp = await firebaseAdmin.messaging().sendEachForMulticast(multicastMessage as any);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const resp = await ctx.firebaseAdmin.messaging().sendEachForMulticast(multicastMessage as any);
       results.push(resp);
     } catch (err) {
       console.error("sendFirebaseNotificationBatchIOS chunk error:", err);

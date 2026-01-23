@@ -1,2 +1,10 @@
 import './module-alias-config';
-export * from './services/index'
+
+// Config types for app-level configuration
+export * from './config';
+
+// Factory function to create the Firebase context
+export { createFirebaseContext, FirebaseContext } from './factory';
+
+// Service exports
+export * from './services/index';

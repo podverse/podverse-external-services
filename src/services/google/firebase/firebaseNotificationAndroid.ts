@@ -1,6 +1,5 @@
 import { stringifyData, chunkArray } from "podverse-helpers";
-import { getWebIconImageUrl } from "@external-services/config/web";
-import { firebaseAdmin } from "./firebaseAdmin";
+import { FirebaseContext } from "../../../factory";
 
 type AndroidPayload = {
   fcmToken: string;
@@ -8,32 +7,36 @@ type AndroidPayload = {
   body?: string;
   channelId?: string;
   image?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 };
 
-export async function sendFirebaseNotificationBatchAndroid(tokens: string[], payload: Omit<AndroidPayload, 'fcmToken'>) {
-  if (!firebaseAdmin) throw new Error("Firebase Admin is not initialized");
+export async function sendFirebaseNotificationBatchAndroid(
+  ctx: FirebaseContext,
+  tokens: string[],
+  payload: Omit<AndroidPayload, 'fcmToken'>
+) {
+  if (!ctx.firebaseAdmin) throw new Error("Firebase Admin is not initialized");
 
   const chunks = chunkArray(tokens, 500);
-  const results: any[] = [];
+  const results: unknown[] = [];
 
   for (const chunk of chunks) {
-    const multicastMessage: any = {
+    const multicastMessage = {
       tokens: chunk,
       android: {
-        priority: "high",
+        priority: "high" as const,
         notification: {
           title: payload.title,
           body: payload.body,
           channelId: payload.channelId || "default",
-          image: payload.image || getWebIconImageUrl(),
+          image: payload.image || ctx.getWebIconImageUrl(),
         },
       },
       data: stringifyData(payload.data),
     };
 
     try {
-      const resp = await firebaseAdmin.messaging().sendEachForMulticast(multicastMessage);
+      const resp = await ctx.firebaseAdmin.messaging().sendEachForMulticast(multicastMessage);
       results.push(resp);
     } catch (err) {
       console.error("sendFirebaseNotificationBatchAndroid chunk error:", err);

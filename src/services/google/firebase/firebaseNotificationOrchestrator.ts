@@ -1,3 +1,4 @@
+import { FirebaseContext } from '../../../factory';
 import { sendFirebaseNotificationBatchWeb } from './firebaseNotificationWeb';
 import { sendFirebaseNotificationBatchAndroid } from './firebaseNotificationAndroid';
 import { sendFirebaseNotificationBatchIOS } from './firebaseNotificationIOS';
@@ -15,10 +16,13 @@ type OrchestratorParams = {
   channelId?: string;
   badge?: number;
   sound?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 };
 
-export async function firebaseNotificationBatchOrchestrator(params: OrchestratorParams) {
+export async function firebaseNotificationBatchOrchestrator(
+  ctx: FirebaseContext,
+  params: OrchestratorParams
+) {
   const { tokens, finalText, platform } = params;
   
   switch (platform) {
@@ -28,9 +32,9 @@ export async function firebaseNotificationBatchOrchestrator(params: Orchestrator
         body: params.body,
         image: params.image,
         link: params.link,
-        data: params.data,
+        data: params.data as Record<string, string> | undefined,
       };
-      return await sendFirebaseNotificationBatchWeb(tokens, payload);
+      return await sendFirebaseNotificationBatchWeb(ctx, tokens, payload);
     }
 
     case 'android': {
@@ -41,7 +45,7 @@ export async function firebaseNotificationBatchOrchestrator(params: Orchestrator
         channelId: params.channelId,
         data: params.data,
       };
-      return await sendFirebaseNotificationBatchAndroid(tokens, payload);
+      return await sendFirebaseNotificationBatchAndroid(ctx, tokens, payload);
     }
 
     case 'ios': {
@@ -53,7 +57,7 @@ export async function firebaseNotificationBatchOrchestrator(params: Orchestrator
         sound: params.sound,
         data: params.data,
       };
-      return await sendFirebaseNotificationBatchIOS(tokens, payload);
+      return await sendFirebaseNotificationBatchIOS(ctx, tokens, payload);
     }
 
     default:

@@ -1,6 +1,5 @@
 import { chunkArray } from "podverse-helpers";
-import { getWebBaseUrl, getWebBaseUrlWithPath, getWebIconImageUrl } from "@external-services/config/web";
-import { firebaseAdmin } from "./firebaseAdmin";
+import { FirebaseContext } from "../../../factory";
 
 type NotificationPayload = {
   fcmToken: string;
@@ -11,18 +10,22 @@ type NotificationPayload = {
   data?: Record<string, string>;
 };
 
-export async function sendFirebaseNotificationBatchWeb(tokens: string[], payload: Omit<NotificationPayload, 'fcmToken'>) {
-  if (!firebaseAdmin) throw new Error("Firebase Admin is not initialized");
+export async function sendFirebaseNotificationBatchWeb(
+  ctx: FirebaseContext,
+  tokens: string[],
+  payload: Omit<NotificationPayload, 'fcmToken'>
+) {
+  if (!ctx.firebaseAdmin) throw new Error("Firebase Admin is not initialized");
 
   const chunks = chunkArray(tokens, 500);
-  const results: any[] = [];
+  const results: unknown[] = [];
 
   for (const chunk of chunks) {
     const data: Record<string, string> = {
       title: payload.title,
       body: payload.body || "",
-      icon: getWebIconImageUrl(),  // Always use app icon for branding
-      link: payload.link ? getWebBaseUrlWithPath(payload.link) : getWebBaseUrl(),
+      icon: ctx.getWebIconImageUrl(),  // Always use app icon for branding
+      link: payload.link ? ctx.getWebBaseUrlWithPath(payload.link) : ctx.getWebBaseUrl(),
     };
 
     // Only add image if it has a value (FCM data values must be strings, not undefined)
@@ -39,7 +42,7 @@ export async function sendFirebaseNotificationBatchWeb(tokens: string[], payload
       }
     }
 
-    const multicastMessage: any = {
+    const multicastMessage = {
       tokens: chunk,
       webpush: {
         headers: { Urgency: "normal" },
@@ -48,7 +51,7 @@ export async function sendFirebaseNotificationBatchWeb(tokens: string[], payload
     };
 
     try {
-      const resp = await firebaseAdmin.messaging().sendEachForMulticast(multicastMessage);
+      const resp = await ctx.firebaseAdmin.messaging().sendEachForMulticast(multicastMessage);
       results.push(resp);
     } catch (err) {
       console.error("sendFirebaseNotificationBatchWeb chunk error:", err);
